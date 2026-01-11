@@ -3,6 +3,8 @@ import "./globals.css";
 import { QueryProvider } from "@/components/provider/QueryProvider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
+import BottomNav from "@/components/BottomNav";
+import MobileContainer from "@/components/MobileContainer";
 
 export const metadata: Metadata = {
   title: "FitCrew - 같이 관리하는 체중 관리 앱",
@@ -18,9 +20,11 @@ export default function RootLayout({
     <QueryProvider>
       <NuqsAdapter>
         <html lang="ko">
-          <body className="antialiased">
-            {children}
-
+          <body className="antialiased bg-gray-100">
+            <MobileContainer>
+              {children}
+              <BottomNav />
+            </MobileContainer>
             <Toaster />
           </body>
         </html>
