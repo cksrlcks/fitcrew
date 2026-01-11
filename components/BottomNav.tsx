@@ -3,9 +3,15 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, TrendingUp, Users } from "lucide-react";
+import { Home, LucideIcon, TrendingUp, Users } from "lucide-react";
 
 type View = "dashboard" | "party" | "progress";
+type NavItem = {
+  label: string;
+  href: string;
+  view: View;
+  icon: React.ReactElement<LucideIcon>;
+}
 
 function getActiveView(pathname: string): View | null {
   if (pathname.startsWith("/party")) {
@@ -19,7 +25,7 @@ function getActiveView(pathname: string): View | null {
   return null;
 }
 
-const Nav = [
+const Nav: NavItem[] = [
   { label: "홈", href: "/", view: "dashboard", icon: <Home size={18} /> },
   {
     label: "진행상황",
@@ -46,11 +52,11 @@ export default function BottomNav() {
                 href={href}
                 className={cn(
                   "flex flex-col items-center justify-center py-2",
-                  isActive ? "text-blue-500" : "text-gray-500"
+                  isActive ? "text-primary" : "text-gray-500"
                 )}
               >
                 <span className="mb-1">{icon}</span>
-                <span className="text-xs">{label}</span>
+                <span className={cn("text-xs", isActive && "font-semibold")}>{label}</span>
               </Link>
             </li>
           );
