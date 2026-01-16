@@ -2,43 +2,21 @@
 
 import SafeInner from "@/components/SafeInner";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase/client";
-import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const handleKakaoLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "kakao",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          prompt: "login",
-        },
-      },
+    await authClient.signIn.oauth2({
+      providerId: "kakao",
+      callbackURL: "/",
     });
-
-    if (error) {
-      console.error("Error during Kakao login:", error);
-      toast.error("카카오 로그인 중 오류가 발생했습니다.");
-      return;
-    }
   };
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    await authClient.signIn.social({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          prompt: "select_account",
-        },
-      },
+      callbackURL: "/",
     });
-
-    if (error) {
-      console.error("Error during Google login:", error);
-      toast.error("구글 로그인 중 오류가 발생했습니다.");
-    }
   };
 
   return (
