@@ -43,13 +43,11 @@ export default function LogDrawer() {
               <div className="pt-6">
                 {type === "weight" && (
                   <BodyLogForm
-                    logDate={date}
                     onClose={() => setIsOpen(false)}
                   />
                 )}
                 {type === "injection" && (
                   <InjectionLogForm
-                    logDate={date}
                     onClose={() => setIsOpen(false)}
                   />
                 )}

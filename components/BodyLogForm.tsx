@@ -26,14 +26,13 @@ const bodyLogFormSchema = z.object({
 export type BodyLogFormType = z.infer<typeof bodyLogFormSchema>;
 
 export type BodyLogFormProps = {
-  logDate?: Date;
   submitPortalRef?: React.RefObject<HTMLElement | null> | null;
   onClose?: () => void;
 };
 
-export default function BodyLogForm({ logDate, onClose }: BodyLogFormProps) {
+export default function BodyLogForm({ onClose }: BodyLogFormProps) {
   const { data: session } = authClient.useSession();
-  const { currentData } = useLogContext();
+  const { currentData, date } = useLogContext();
 
   const {
     register,
@@ -43,9 +42,7 @@ export default function BodyLogForm({ logDate, onClose }: BodyLogFormProps) {
     resolver: zodResolver(bodyLogFormSchema),
     defaultValues: {
       userId: session?.user.id || "",
-      logDate: currentData?.date
-        ? new Date(currentData.date).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0],
+      logDate: format(date || new Date(), "yyyy-MM-dd"),
       weight: currentData?.body?.weight ?? undefined,
       bodyFatRate: currentData?.body?.bodyFatRate ?? undefined,
       muscleMass: currentData?.body?.muscleMass ?? undefined,
@@ -93,7 +90,7 @@ export default function BodyLogForm({ logDate, onClose }: BodyLogFormProps) {
   return (
     <form onSubmit={onSubmit}>
       <div className="text-lg font-semibold text-left tracking-tight">
-        {format(logDate || new Date(), "yy년 M월 dd일")} 기록하기
+        {format(date || new Date(), "yy년 M월 dd일")} 기록하기
       </div>
       <Separator className="my-4" />
       <FieldGroup>
