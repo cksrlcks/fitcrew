@@ -4,7 +4,7 @@ import { createContext, PropsWithChildren, useContext, useState } from "react";
 import LogDrawer from "../LogDrawer";
 import { useQuery } from "@tanstack/react-query";
 import { DailyLog } from "@/lib/type";
-import { endOfWeek, isSameDay, startOfWeek } from "date-fns";
+import { endOfWeek, format, isSameDay, startOfWeek } from "date-fns";
 
 type LogType = "weight" | "injection";
 
@@ -40,10 +40,10 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
   };
 
   const { data, isPending } = useQuery<{ data: DailyLog[]; lastInjectionDate?: string }>({
-    queryKey: ["logs", from.toISOString(), end.toISOString()],
+    queryKey: ["logs", from, end],
     queryFn: async () => {
       const response = await fetch(
-        `/api/log?from=${from.toISOString()}&to=${end.toISOString()}`,
+        `/api/log?from=${format(from, "yyyy-MM-dd")}&to=${format(end, "yyyy-MM-dd")}`,
       );
 
       if (!response.ok) {

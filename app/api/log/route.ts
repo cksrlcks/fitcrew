@@ -8,45 +8,21 @@ import {
 } from "@/lib/db/service/logs";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { eachDayOfInterval, formatDate } from "date-fns";
-
-function toKSTStartOfDay(iso: string): Date {
-  const d = new Date(iso);
-
-  // KST 보정
-  d.setHours(d.getHours() + 9);
-
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-function buildDateRangeUTC(fromISO: string, toISO: string): string[] {
-  const start = toKSTStartOfDay(fromISO);
-  const end = toKSTStartOfDay(toISO);
-  end.setDate(end.getDate() - 1);
-
-  return eachDayOfInterval({ start, end }).map((d) =>
-    formatDate(d, "yyyy-MM-dd"),
-  );
-}
+import { eachDayOfInterval, format } from "date-fns";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
-  const fromRaw = searchParams.get("from");
-  const toRaw = searchParams.get("to");
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
 
-  if (!fromRaw || isNaN(Date.parse(fromRaw))) {
+  if (!from || !to) {
     return NextResponse.json(
-      { message: "from is not valid date" },
+      { message: "from and to are required (YYYY-MM-DD)" },
       { status: 400 },
     );
   }
 
-  if (!toRaw || isNaN(Date.parse(toRaw))) {
-    return NextResponse.json(
-      { message: "to is not valid date" },
-      { status: 400 },
-    );
-  }
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -55,22 +31,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const dates = buildDateRangeUTC(fromRaw, toRaw);
+  const start = new Date(from + "T00:00:00");
+  const end = new Date(to + "T00:00:00");
 
-  const fromDate = dates[0];
-  const toDate = dates[dates.length - 1];
-  console.log({ fromDate, toDate });
+  const dates = eachDayOfInterval({ start, end }).map((d) =>
+    format(d, "yyyy-MM-dd"),
+  );
 
   const [bodyLogs, injectionLogs, lastInjectionDate] = await Promise.all([
     getBodyLogs({
       userId: session.user.id,
-      from: fromDate,
-      to: toDate,
+      from,
+      to,
     }),
     getInjectionLogs({
       userId: session.user.id,
-      from: fromDate,
-      to: toDate,
+      from,
+      to,
     }),
     getLastInjectionDate({
       userId: session.user.id,
@@ -80,15 +57,15 @@ export async function GET(request: NextRequest) {
   const bodyMap = new Map(bodyLogs.map((log) => [log.logDate, log]));
   const injectionMap = new Map(injectionLogs.map((log) => [log.logDate, log]));
 
-  const result = dates.map((date) => ({
+  const data = dates.map((date) => ({
     date,
     body: bodyMap.get(date) ?? null,
     injection: injectionMap.get(date) ?? null,
   }));
 
   return NextResponse.json({
-    data: result,
-    lastInjectionDate: lastInjectionDate,
+    data,
+    lastInjectionDate,
   });
 }
 
