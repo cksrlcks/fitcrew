@@ -4,17 +4,19 @@ import WeekCalendar from "./WeekCalendar";
 import SafeInner from "./SafeInner";
 import Calendar from "./Calendar";
 import { useLogContext } from "./provider/LogProvider";
+import { Spinner } from "./ui/spinner";
 
 export default function WeekStatus() {
-  const { date, setDate, from, end, weekData } = useLogContext();
-  
+  const { date, setDate, from, end, weekData, isLoading } = useLogContext();
+
   return (
     <div className="space-y-4">
-      <SafeInner className="border-b border-b-gray-100">
+      <SafeInner className="border-b border-b-gray-100 flex items-center justify-between pb-4">
         <Calendar
           date={date}
           setDate={(newDate) => setDate(newDate || new Date())}
         />
+        {isLoading && <Spinner className="opacity-50"/>}
       </SafeInner>
 
       <div>

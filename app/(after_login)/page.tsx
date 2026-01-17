@@ -1,13 +1,20 @@
 "use client";
 
+import Chart from "@/components/Chart";
 import { useLogContext } from "@/components/provider/LogProvider";
 import Quick from "@/components/Quick";
 import { Separator } from "@/components/ui/separator";
 import WeekStatus from "@/components/WeekStatus";
+import { format } from "date-fns";
 
 export default function Page() {
-  const { date, setDate, currentData, weekData, from, end, lastInjectionDate } =
+  const { date, currentData, weekData, lastInjectionDate } =
     useLogContext();
+
+  const chartData = weekData?.map((log) => ({
+    date: format(new Date(log.date), "MM/dd"),
+    weight: log.body?.weight ?? null,
+  }));
 
   return (
     <>
@@ -18,6 +25,7 @@ export default function Page() {
         data={currentData}
         lastInjectionDate={lastInjectionDate}
       />
+      <Chart data={chartData ?? []} />
     </>
   );
 }

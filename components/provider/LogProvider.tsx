@@ -20,6 +20,7 @@ type LogContextType = {
   lastInjectionDate?: string;
   from: Date;
   end: Date;
+  isLoading: boolean;
 };
 
 export const LogContext = createContext<LogContextType | null>(null);
@@ -38,7 +39,7 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
     setDate(date || new Date());
   };
 
-  const { data } = useQuery<{ data: DailyLog[]; lastInjectionDate?: string }>({
+  const { data, isPending } = useQuery<{ data: DailyLog[]; lastInjectionDate?: string }>({
     queryKey: ["logs", from.toISOString(), end.toISOString()],
     queryFn: async () => {
       const response = await fetch(
@@ -71,6 +72,7 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
         lastInjectionDate: data?.lastInjectionDate,
         from,
         end,
+        isLoading: isPending,
       }}
     >
       {children}
