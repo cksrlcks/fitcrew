@@ -8,7 +8,7 @@ import {
 } from "@/lib/db/service/logs";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { format, eachDayOfInterval } from "date-fns";
+import { format, eachDayOfInterval, parseISO } from "date-fns";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -53,16 +53,14 @@ export async function GET(request: NextRequest) {
     }),
   ]);
 
-  const bodyMap = new Map(
-    bodyLogs.map((log) => [log.logDate, log]),
-  );
+  const bodyMap = new Map(bodyLogs.map((log) => [log.logDate, log]));
 
-  const injectionMap = new Map(
-    injectionLogs.map((log) => [log.logDate, log]),
-  );
+  const injectionMap = new Map(injectionLogs.map((log) => [log.logDate, log]));
 
-  const start = from ? new Date(from) : new Date();
-  const end = to ? new Date(to) : new Date();
+  const start = from
+    ? parseISO(from)
+    : parseISO(format(new Date(), "yyyy-MM-dd"));
+  const end = to ? parseISO(to) : start;
 
   const dates = eachDayOfInterval({ start, end }).map((d) =>
     format(d, "yyyy-MM-dd"),
