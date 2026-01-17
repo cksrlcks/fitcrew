@@ -8,7 +8,7 @@ import {
 } from "@/lib/db/service/logs";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { format, eachDayOfInterval, parseISO } from "date-fns";
+import { format, eachDayOfInterval, parseISO, startOfDay } from "date-fns";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -62,9 +62,10 @@ export async function GET(request: NextRequest) {
     : parseISO(format(new Date(), "yyyy-MM-dd"));
   const end = to ? parseISO(to) : start;
 
-  const dates = eachDayOfInterval({ start, end }).map((d) =>
-    format(d, "yyyy-MM-dd"),
-  );
+  const dates = eachDayOfInterval({
+    start: startOfDay(start),
+    end: startOfDay(end),
+  }).map((d) => format(d, "yyyy-MM-dd"));
 
   const result = dates.map((date) => ({
     date,
