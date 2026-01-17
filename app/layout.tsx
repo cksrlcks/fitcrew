@@ -4,6 +4,7 @@ import { QueryProvider } from "@/components/provider/QueryProvider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
 import MobileContainer from "@/components/MobileContainer";
+import { LogProvider } from "@/components/provider/LogProvider";
 
 export const metadata: Metadata = {
   title: "FitCrew - 같이 관리하는 체중 관리 앱",
@@ -18,14 +19,14 @@ export default function RootLayout({
   return (
     <QueryProvider>
       <NuqsAdapter>
-        <html lang="ko">
-          <body className="antialiased bg-gray-100">
-            <MobileContainer>
-              {children}
-            </MobileContainer>
-            <Toaster />
-          </body>
-        </html>
+        <LogProvider>
+          <html lang="ko">
+            <body className="antialiased bg-gray-100">
+              <MobileContainer>{children}</MobileContainer>
+              <Toaster />
+            </body>
+          </html>
+        </LogProvider>
       </NuqsAdapter>
     </QueryProvider>
   );

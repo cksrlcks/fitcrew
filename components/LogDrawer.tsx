@@ -8,24 +8,45 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Button } from "./ui/button";
-import { PropsWithChildren } from "react";
+} from "@/components/ui/drawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function LogDrawer({children}: PropsWithChildren) {
+import { Button } from "./ui/button";
+import { useLogContext } from "./provider/LogProvider";
+import { LogType } from "@/lib/type";
+
+const TYPE_KOREAN: Record<LogType, string> = {
+  weight: "체성분 기록",
+  injection: "약물 주사 내역",
+};
+
+export default function LogDrawer() {
+  const { isOpen, setIsOpen, type } = useLogContext();
+
   return (
-    <Drawer>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerContent className="z-100 max-w-lg mx-auto">
         <DrawerHeader>
-          <DrawerTitle>기록하기</DrawerTitle>
-          <DrawerDescription>체성분 기록 또는 약물 주사 내역을 입력하세요.</DrawerDescription>
+          <Tabs defaultValue="weight">
+            <TabsList className="w-full">
+              <TabsTrigger value="weight">{TYPE_KOREAN["weight"]}</TabsTrigger>
+              <TabsTrigger value="injection">
+                {TYPE_KOREAN["injection"]}
+              </TabsTrigger>
+            </TabsList>
+
+            <DrawerTitle hidden>{TYPE_KOREAN[type]} 기록하기</DrawerTitle>
+            <div className="pt-6">
+              <TabsContent value="weight">체중입력폼</TabsContent>
+              <TabsContent value="injection">주사입력폼</TabsContent>
+            </div>
+          </Tabs>
         </DrawerHeader>
         <DrawerFooter className="gap-1">
-          <Button>저장하기</Button>
-          <DrawerClose>
-            <Button variant="outline" className="w-full">취소</Button>
+          <DrawerClose asChild>
+            <Button variant="outline" className="w-full">
+              취소
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

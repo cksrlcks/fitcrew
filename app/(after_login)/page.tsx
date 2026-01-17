@@ -1,26 +1,13 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import LogoutButton from "@/components/LogoutButton";
+import Quick from "@/components/Quick";
+import { Separator } from "@/components/ui/separator";
+import WeekStatus from "@/components/WeekStatus";
 
-export default async function Page() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/login");
-  }
-
+export default function Page() {
   return (
-    <div>
-      <div>대시보드 페이지</div>
-      <div>
-        {session
-          ? `환영합니다, ${session.user.name}님!`
-          : "사용자 정보를 불러올 수 없습니다."}
-      </div>
-      <LogoutButton />
-    </div>
+    <>
+      <WeekStatus />
+      <Separator className="h-2! bg-gray-100 my-3"/>
+      <Quick />
+    </>
   );
 }

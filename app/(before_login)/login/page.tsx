@@ -1,8 +1,12 @@
 "use client";
 
 import SafeInner from "@/components/SafeInner";
-import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
+import Logo from "@/assets/image/logo.svg";
+import { SocialButton } from "@/components/SocialButton";
+import IconGoogle from "@/assets/image/icon-google.svg";
+import IconKakao from "@/assets/image/icon-kakao.svg";
 
 export default function LoginPage() {
   const handleKakaoLogin = async () => {
@@ -20,21 +24,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-dvh flex flex-col">
-      <SafeInner className="flex-1 flex items-center">
-        <div>
-          함께하는 체중 관리, <br />
-          FitCrew와 시작하세요!
+    <SafeInner className="h-dvh flex flex-col justify-center gap-8 px-8">
+      <div className="flex items-center">
+        <div className="space-y-4">
+          <Image src={Logo} alt="FitCrew" className="h-6 w-auto" />
+          <div className="opacity-70 tracking-tight">
+            함께하는 체중 관리, 핏크루와 시작하세요!
+          </div>
         </div>
-      </SafeInner>
-      <SafeInner className="flex flex-col gap-1 py-6">
-        <Button type="button" variant="outline" onClick={handleKakaoLogin}>
-          카카오로 시작하기
-        </Button>
-        <Button type="button" variant="outline" onClick={handleGoogleLogin}>
-          구글로 시작하기
-        </Button>
-      </SafeInner>
-    </div>
+      </div>
+      <div className="space-y-1.5">
+        <SocialButton
+          icon={IconKakao}
+          label="카카오로 시작하기"
+          className="border-[#f2d413] bg-[#fee400] text-slate-950 hover:bg-[#fed800]"
+          onClick={handleKakaoLogin}
+        />
+        <SocialButton
+          icon={IconGoogle}
+          label="구글로 시작하기"
+          onClick={handleGoogleLogin}
+        />
+      </div>
+    </SafeInner>
   );
 }

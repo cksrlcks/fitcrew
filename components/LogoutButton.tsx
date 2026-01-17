@@ -1,8 +1,8 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { Button } from "./ui/button";
 import { useTransition } from "react";
+import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
   const [isPending, startTransition] = useTransition();
@@ -11,14 +11,13 @@ export default function LogoutButton() {
     startTransition(async () => {
       await authClient.signOut();
       window.location.href = "/";
-    })
+    });
   };
 
   return (
-    <>
-      <Button type="button" onClick={handleLogout} disabled={isPending}>
-        로그아웃
-      </Button>
-    </>
+    <button type="button" onClick={handleLogout} disabled={isPending} className="flex items-center cursor-pointer hover:opacity-70">
+      <LogOut size={20}/>
+      <span className="sr-only">로그아웃</span>
+    </button>
   );
 }
