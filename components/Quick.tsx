@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Layers, Syringe } from "lucide-react";
 import { useLogContext } from "./provider/LogProvider";
 import { DailyLog } from "@/lib/type";
+import { Skeleton } from "./ui/skeleton";
 
 type QuickProps = {
   date: Date | undefined;
@@ -14,18 +15,26 @@ type QuickProps = {
 };
 
 export default function Quick({ date, data, lastInjectionDate }: QuickProps) {
-  const { onOpen } = useLogContext();
+  const { onOpen, isLoading } = useLogContext();
 
   return (
     <SafeInner className="flex gap-1">
-      <QuickButton type="button" onClick={() => onOpen(true, "weight", date)}>
+      <QuickButton type="button" onClick={() => onOpen(true, "weight", date)} disabled={isLoading}>
         <span className="flex w-10 h-10 rounded-full bg-rose-100 text-rose-700 items-center justify-center">
           <Layers size={20} className="opacity-40" />
         </span>
         <div className="space-y-0.5">
           <div className="text-xl font-semibold">
-            {data?.body?.weight ?? "-"}
-            <span className="text-sm font-normal text-gray-500 pl-1">kg</span>
+            {isLoading ? (
+              <Skeleton className="h-4 mb-3"/>
+            ) : (
+              <>
+                {data?.body?.weight ?? "-"}{" "}
+                <span className="text-sm font-normal text-gray-500 pl-1">
+                  kg
+                </span>
+              </>
+            )}
           </div>
           <div className="text-[13px] font-normal text-gray-500 tracking-tight">
             체중 기록
@@ -35,17 +44,26 @@ export default function Quick({ date, data, lastInjectionDate }: QuickProps) {
       <QuickButton
         type="button"
         onClick={() => onOpen(true, "injection", date)}
+        disabled={isLoading}
       >
         <span className="flex w-10 h-10 rounded-full bg-blue-100 text-blue-700 items-center justify-center">
           <Syringe size={20} className="opacity-40" />
         </span>
         <div className="space-y-0.5">
           <div className="text-xl font-semibold">
-            {data?.injection?.dosage ?? "-"}
-            <span className="text-sm font-normal text-gray-500 pl-1">mg</span>
+            {isLoading ? (
+              <Skeleton className="h-4 mb-3"/>
+            ) : (
+              <>
+                {data?.injection?.dosage ?? "-"}{" "}
+                <span className="text-sm font-normal text-gray-500 pl-1">
+                  mg
+                </span>
+              </>
+            )}
           </div>
           <div className="text-[13px] font-medium text-muted-foreground tracking-tight">
-            최근 : {lastInjectionDate || '-'}
+            최근 : {lastInjectionDate || "-"}
           </div>
         </div>
       </QuickButton>

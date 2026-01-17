@@ -1,9 +1,10 @@
 "use client";
 
 import { useLogContext } from "./provider/LogProvider";
+import { Spinner } from "./ui/spinner";
 
 export default function LogAddButton() {
-  const { onOpen, date } = useLogContext();
+  const { onOpen, date, isLoading } = useLogContext();
 
   return (
     <>
@@ -11,8 +12,9 @@ export default function LogAddButton() {
         type="button"
         className="fixed z-10 bottom-24 py-4 px-6 left-1/2 -translate-x-1/2 bg-primary rounded-full shadow-lg text-white hover:bg-primary/80 active:scale-95 transition-transform cursor-pointer flex items-center gap-2"
         onClick={() => onOpen(true, "weight", date)}
+        disabled={isLoading}
       >
-        ✨ 기록 추가하기
+        ✨ 기록 추가하기 {isLoading && <Spinner />}
       </button>
     </>
   );
