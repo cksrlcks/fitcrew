@@ -8,22 +8,30 @@ import {
 } from "@/lib/db/service/logs";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { format, eachDayOfInterval, parseISO, startOfDay } from "date-fns";
+import { format, eachDayOfInterval, parseISO } from "date-fns";
 
+function buildDateRange(fromStr: string, toStr: string): string[] {
+  const start = parseISO(fromStr);
+  const end = parseISO(toStr);
+
+  const dateArray = eachDayOfInterval({ start, end });
+
+  return dateArray.map((date) => format(date, "yyyy-MM-dd"));
+}
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
   const from = searchParams.get("from");
   const to = searchParams.get("to");
 
-  if (from && isNaN(Date.parse(from))) {
+  if (!from || isNaN(Date.parse(from))) {
     return NextResponse.json(
       { message: "from is not valid date" },
       { status: 400 },
     );
   }
 
-  if (to && isNaN(Date.parse(to))) {
+  if (!to || isNaN(Date.parse(to))) {
     return NextResponse.json(
       { message: "to is not valid date" },
       { status: 400 },
@@ -57,15 +65,7 @@ export async function GET(request: NextRequest) {
 
   const injectionMap = new Map(injectionLogs.map((log) => [log.logDate, log]));
 
-  const start = from
-    ? parseISO(from)
-    : parseISO(format(new Date(), "yyyy-MM-dd"));
-  const end = to ? parseISO(to) : start;
-
-  const dates = eachDayOfInterval({
-    start: startOfDay(start),
-    end: startOfDay(end),
-  }).map((d) => d.toISOString().slice(0, 10));
+  const dates = buildDateRange(from, to);
 
   const result = dates.map((date) => ({
     date,
