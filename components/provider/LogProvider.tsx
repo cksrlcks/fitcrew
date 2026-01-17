@@ -12,6 +12,7 @@ type LogContextType = {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   type: LogType;
+  setType: (type: LogType) => void;
   onOpen: (value: boolean, type: LogType, date?: Date) => void;
   date: Date;
   setDate: (date: Date) => void;
@@ -64,6 +65,7 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
         isOpen,
         setIsOpen,
         type,
+        setType,
         onOpen,
         date,
         setDate,
