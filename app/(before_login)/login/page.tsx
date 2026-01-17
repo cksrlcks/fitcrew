@@ -24,7 +24,7 @@ export default function LoginPage() {
   };
 
   return (
-    <SafeInner className="h-dvh flex flex-col justify-center gap-8 px-8">
+    <SafeInner className="fiexd inset-0 h-full flex flex-col justify-center gap-8 px-8">
       <div className="flex items-center">
         <div className="space-y-4">
           <Image src={Logo} alt="FitCrew" className="h-6 w-auto" />

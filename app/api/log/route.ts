@@ -54,11 +54,11 @@ export async function GET(request: NextRequest) {
   ]);
 
   const bodyMap = new Map(
-    bodyLogs.map((log) => [format(log.logDate, "yyyy-MM-dd"), log]),
+    bodyLogs.map((log) => [log.logDate, log]),
   );
 
   const injectionMap = new Map(
-    injectionLogs.map((log) => [format(log.logDate, "yyyy-MM-dd"), log]),
+    injectionLogs.map((log) => [log.logDate, log]),
   );
 
   const start = from ? new Date(from) : new Date();
