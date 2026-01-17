@@ -26,13 +26,7 @@ function getActiveView(pathname: string): View | null {
 }
 
 const Nav: NavItem[] = [
-  { label: "홈", href: "/", view: "dashboard", icon: <Home size={18} /> },
-  {
-    label: "진행상황",
-    href: "/progress",
-    view: "progress",
-    icon: <TrendingUp size={18} />,
-  },
+  { label: "진행상황", href: "/", view: "dashboard", icon: <TrendingUp size={18} /> },
   { label: "파티", href: "/party", view: "party", icon: <Users size={18} /> },
 ];
 

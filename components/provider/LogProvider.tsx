@@ -2,6 +2,9 @@
 
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import LogDrawer from "../LogDrawer";
+import { useQuery } from "@tanstack/react-query";
+import { DailyLog } from "@/lib/type";
+import { endOfWeek, isSameDay, startOfWeek } from "date-fns";
 
 type LogType = "weight" | "injection";
 
@@ -9,7 +12,14 @@ type LogContextType = {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   type: LogType;
-  onOpen: (value: boolean, type: LogType) => void;
+  onOpen: (value: boolean, type: LogType, date?: Date) => void;
+  date: Date;
+  setDate: (date: Date) => void;
+  currentData?: DailyLog;
+  weekData?: DailyLog[];
+  lastInjectionDate?: string;
+  from: Date;
+  end: Date;
 };
 
 export const LogContext = createContext<LogContextType | null>(null);
@@ -17,14 +27,52 @@ export const LogContext = createContext<LogContextType | null>(null);
 export const LogProvider = ({ children }: PropsWithChildren) => {
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState<LogType>("weight");
+  const [date, setDate] = useState<Date>(new Date());
 
-  const onOpen = (value: boolean, logType: LogType) => {
+  const from = startOfWeek(date);
+  const end = endOfWeek(date);
+
+  const onOpen = (value: boolean, logType: LogType, date?: Date) => {
     setIsOpen(value);
     setType(logType);
+    setDate(date || new Date());
   };
 
+  const { data } = useQuery<{ data: DailyLog[]; lastInjectionDate?: string }>({
+    queryKey: ["logs", from.toISOString(), end.toISOString()],
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/log?from=${from.toISOString()}&to=${end.toISOString()}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch logs");
+      }
+
+      return response.json();
+    },
+  });
+
+  const currentData = data?.data.find((item) =>
+    isSameDay(new Date(item.date), date),
+  );
+
   return (
-    <LogContext.Provider value={{ isOpen, setIsOpen, type, onOpen }}>
+    <LogContext.Provider
+      value={{
+        isOpen,
+        setIsOpen,
+        type,
+        onOpen,
+        date,
+        setDate,
+        currentData,
+        weekData: data?.data,
+        lastInjectionDate: data?.lastInjectionDate,
+        from,
+        end,
+      }}
+    >
       {children}
       <LogDrawer />
     </LogContext.Provider>

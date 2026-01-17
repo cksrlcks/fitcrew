@@ -2,18 +2,16 @@
 
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { Button } from "./ui/button";
 import { useLogContext } from "./provider/LogProvider";
 import { LogType } from "@/lib/type";
+import BodyLogForm from "./BodyLogForm";
+import InjectionLogForm from "./InjectionLogForm";
 
 const TYPE_KOREAN: Record<LogType, string> = {
   weight: "체성분 기록",
@@ -21,8 +19,8 @@ const TYPE_KOREAN: Record<LogType, string> = {
 };
 
 export default function LogDrawer() {
-  const { isOpen, setIsOpen, type } = useLogContext();
-
+  const { isOpen, setIsOpen, type, date } = useLogContext();
+  
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerContent className="z-100 max-w-lg mx-auto">
@@ -37,18 +35,15 @@ export default function LogDrawer() {
 
             <DrawerTitle hidden>{TYPE_KOREAN[type]} 기록하기</DrawerTitle>
             <div className="pt-6">
-              <TabsContent value="weight">체중입력폼</TabsContent>
-              <TabsContent value="injection">주사입력폼</TabsContent>
+              <TabsContent value="weight">
+                <BodyLogForm logDate={date} onClose={() => setIsOpen(false)} />
+              </TabsContent>
+              <TabsContent value="injection">
+                <InjectionLogForm logDate={date} onClose={() => setIsOpen(false)} />
+              </TabsContent>
             </div>
           </Tabs>
         </DrawerHeader>
-        <DrawerFooter className="gap-1">
-          <DrawerClose asChild>
-            <Button variant="outline" className="w-full">
-              취소
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
