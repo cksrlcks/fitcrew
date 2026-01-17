@@ -8,30 +8,40 @@ import {
 } from "@/lib/db/service/logs";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { format, eachDayOfInterval, parseISO } from "date-fns";
+import { eachDayOfInterval, formatDate } from "date-fns";
 
-function buildDateRange(fromStr: string, toStr: string): string[] {
-  const start = parseISO(fromStr);
-  const end = parseISO(toStr);
+function toKSTStartOfDay(iso: string): Date {
+  const d = new Date(iso);
 
-  const dateArray = eachDayOfInterval({ start, end });
+  // KST 보정
+  d.setHours(d.getHours() + 9);
 
-  return dateArray.map((date) => format(date, "yyyy-MM-dd"));
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
+function buildDateRangeUTC(fromISO: string, toISO: string): string[] {
+  const start = toKSTStartOfDay(fromISO);
+  const end = toKSTStartOfDay(toISO);
+  end.setDate(end.getDate() - 1);
+
+  return eachDayOfInterval({ start, end }).map((d) =>
+    formatDate(d, "yyyy-MM-dd"),
+  );
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
-  const from = searchParams.get("from");
-  const to = searchParams.get("to");
+  const fromRaw = searchParams.get("from");
+  const toRaw = searchParams.get("to");
 
-  if (!from || isNaN(Date.parse(from))) {
+  if (!fromRaw || isNaN(Date.parse(fromRaw))) {
     return NextResponse.json(
       { message: "from is not valid date" },
       { status: 400 },
     );
   }
 
-  if (!to || isNaN(Date.parse(to))) {
+  if (!toRaw || isNaN(Date.parse(toRaw))) {
     return NextResponse.json(
       { message: "to is not valid date" },
       { status: 400 },
@@ -45,16 +55,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const dates = buildDateRangeUTC(fromRaw, toRaw);
+
+  const fromDate = dates[0];
+  const toDate = dates[dates.length - 1];
+  console.log({ fromDate, toDate });
+
   const [bodyLogs, injectionLogs, lastInjectionDate] = await Promise.all([
     getBodyLogs({
       userId: session.user.id,
-      from,
-      to,
+      from: fromDate,
+      to: toDate,
     }),
     getInjectionLogs({
       userId: session.user.id,
-      from,
-      to,
+      from: fromDate,
+      to: toDate,
     }),
     getLastInjectionDate({
       userId: session.user.id,
@@ -62,10 +78,7 @@ export async function GET(request: NextRequest) {
   ]);
 
   const bodyMap = new Map(bodyLogs.map((log) => [log.logDate, log]));
-
   const injectionMap = new Map(injectionLogs.map((log) => [log.logDate, log]));
-
-  const dates = buildDateRange(from, to);
 
   const result = dates.map((date) => ({
     date,
