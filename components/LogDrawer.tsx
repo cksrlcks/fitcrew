@@ -27,7 +27,7 @@ export default function LogDrawer() {
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerContent className="z-100 max-w-lg mx-auto">
         <DrawerHeader>
-          <Tabs defaultValue="weight">
+          <Tabs defaultValue={type}>
             <TabsList className="w-full">
               <TabsTrigger value="weight">{TYPE_KOREAN["weight"]}</TabsTrigger>
               <TabsTrigger value="injection">
