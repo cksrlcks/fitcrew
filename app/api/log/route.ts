@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
   const dates = eachDayOfInterval({
     start: startOfDay(start),
     end: startOfDay(end),
-  }).map((d) => format(d, "yyyy-MM-dd"));
+  }).map((d) => d.toISOString().slice(0, 10));
 
   const result = dates.map((date) => ({
     date,
