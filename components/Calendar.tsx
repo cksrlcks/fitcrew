@@ -26,7 +26,7 @@ export default function Calendar({ date, setDate }: CalendarProps) {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="flex items-center gap-2 w-full cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer"
         >
           <span className="font-semibold tracking-tight">
             {format(date ?? new Date(), "yyyy년 MM월 dd일")}
