@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import PWAIcon from '@/assets/image/icon-pwa.svg'
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -49,22 +50,21 @@ export default function InstallPrompt() {
   if (isStandalone || !isOpen) return null;
 
   return (
-    <div className="bg-[#0F172B] p-4 border border-gray-200 text-white flex items-center gap-2">
+    <div className="bg-[#0F172B] p-4 border border-gray-200 text-white flex items-center gap-3">
       <Image
-        src="/icon-512x512.png"
+        src={PWAIcon}
         alt="Install Icon"
-        width={48}
-        height={48}
-        className="-ml-2"
+        width={60}
+        height={60}
       />
 
       <div className="text-sm flex-1">
-        <div>Fitcrew 앱설치</div>
-        {isIOS && (
-          <div className="text-xs opacity-50">
-            아이폰은 공유 버튼 → 홈화면에 추가
-          </div>
-        )}
+        <div>Fitcrew 설치</div>
+        <div className="text-xs opacity-50">
+          {isIOS
+            ? "하단의 공유 아이콘을 눌러 '홈 화면에 추가'를 선택하여 설치할 수 있습니다."
+            : "앱처럼 편하게 사용해보세요."}
+        </div>
       </div>
 
       <div className="flex gap-1">
