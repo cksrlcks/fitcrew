@@ -54,7 +54,6 @@ export default function Chart({ data }: ChartProps) {
           fill="var(--primary)"
           isAnimationActive={false}
           dot={({ payload, ...props }) => {
-            console.log(payload);
             return (
               <Dot
                 key={payload.date}

@@ -27,7 +27,7 @@ export default function RootLayout({
             <body className="antialiased bg-gray-100">
               <MobileContainer>{children}</MobileContainer>
               <Toaster />
-              <PWA />
+              {/* <PWA /> */}
             </body>
           </html>
         </LogProvider>
