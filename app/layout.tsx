@@ -25,9 +25,11 @@ export default function RootLayout({
           <ServiceWorkerRegister />
           <html lang="ko">
             <body className="antialiased bg-gray-100">
-              <MobileContainer>{children}</MobileContainer>
+              <MobileContainer>
+                <PWA />
+                {children}
+              </MobileContainer>
               <Toaster />
-              <PWA />
             </body>
           </html>
         </LogProvider>

@@ -1,24 +1,31 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import SafeInner from "./SafeInner";
 import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
+
 export default function InstallPrompt() {
   const [isOpen, setIsOpen] = useState(true);
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
 
-  const isIOS =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-    !(window as unknown as { MSStream?: string }).MSStream;
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+  const isStandalone =
+    typeof window !== "undefined" &&
+    ((window.navigator as any).standalone === true ||
+      window.matchMedia("(display-mode: standalone)").matches);
 
+  const isIOS =
+    typeof window !== "undefined" &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    !(window as any).MSStream;
+
+  /** 설치 가능 여부 캐치 (상태 저장 목적 아님) */
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
@@ -26,68 +33,56 @@ export default function InstallPrompt() {
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  /** 설치 버튼 클릭: 조건 안 맞으면 조용히 종료 */
   const handleInstallClick = async () => {
+    if (isStandalone) return;
     if (!deferredPrompt) return;
 
     await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-
-    if (outcome === "accepted") {
-      setIsOpen(false);
-    }
+    await deferredPrompt.userChoice;
 
     setDeferredPrompt(null);
   };
 
-  if (isStandalone) return null;
-
-  if (!isOpen) return null;
+  /** 앱(PWA) 실행 중이거나 닫힌 상태면 미노출 */
+  if (isStandalone || !isOpen) return null;
 
   return (
-    <div className="fixed bottom-2 left-0 z-50 w-full pb-[env(safe-area-inset-bottom)]">
-      <SafeInner className="max-w-125 mx-auto px-8">
-        <div className="bg-[#0F172B] rounded-lg p-4 border border-gray-200 text-white">
-          <Image
-            src="/icon-512x512.png"
-            alt="Install Icon"
-            width={80}
-            height={80}
-            className="-ml-2"
-          />
-          <div className="text-center pb-6">
-            <div>홈 화면에 앱을 추가하실수 있어요.</div>
-            {isIOS && (
-              <div className="text-sm opacity-50">
-                아이폰의 경우 Safari 공유 버튼을 눌러 설치하세요.
-              </div>
-            )}
+    <div className="bg-[#0F172B] p-4 border border-gray-200 text-white flex items-center gap-2">
+      <Image
+        src="/icon-512x512.png"
+        alt="Install Icon"
+        width={48}
+        height={48}
+        className="-ml-2"
+      />
+
+      <div className="text-sm flex-1">
+        <div>Fitcrew 앱설치</div>
+        {true && (
+          <div className="text-xs opacity-50">
+            아이폰은 공유 버튼 → 홈화면에 추가
           </div>
-          <div className="space-y-1">
-            {!isIOS && deferredPrompt && (
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={handleInstallClick}
-              >
-                홈 화면에 추가
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-transparent border-white/20"
-              onClick={() => setIsOpen(false)}
-            >
-              닫기
-            </Button>
-          </div>
-        </div>
-      </SafeInner>
+        )}
+      </div>
+
+      <div className="flex gap-1">
+        <Button variant="default" onClick={handleInstallClick}>
+          설치
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="bg-transparent border-white/20"
+          onClick={() => setIsOpen(false)}
+        >
+          닫기
+        </Button>
+      </div>
     </div>
   );
 }
