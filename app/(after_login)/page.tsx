@@ -8,8 +8,7 @@ import WeekStatus from "@/components/WeekStatus";
 import { format } from "date-fns";
 
 export default function Page() {
-  const { date, currentData, weekData, lastInjectionDate } =
-    useLogContext();
+  const { date, currentData, weekData, lastInjectionDate } = useLogContext();
 
   const chartData = weekData?.map((log) => ({
     date: format(new Date(log.date), "MM/dd"),
@@ -20,12 +19,14 @@ export default function Page() {
     <>
       <WeekStatus />
       <Separator className="h-2! bg-gray-100 my-3" />
-      <Quick
-        date={date}
-        data={currentData}
-        lastInjectionDate={lastInjectionDate}
-      />
-      <Chart data={chartData ?? []} />
+      <div className="space-y-6">
+        <Quick
+          date={date}
+          data={currentData}
+          lastInjectionDate={lastInjectionDate}
+        />
+        <Chart data={chartData ?? []} />
+      </div>
     </>
   );
 }

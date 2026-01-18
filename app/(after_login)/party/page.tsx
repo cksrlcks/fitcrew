@@ -1,3 +1,7 @@
 export default function PartyPage() {
-  return <div>PartyPage</div>;
+  return <div>
+    <div className="p-4 text-center text-gray-500">
+      준비중
+    </div>
+  </div>;
 }
