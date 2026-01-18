@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import SafeInner from "./SafeInner";
 import { Button } from "./ui/button";
 
 type BeforeInstallPromptEvent = Event & {
@@ -17,15 +16,15 @@ export default function InstallPrompt() {
 
   const isStandalone =
     typeof window !== "undefined" &&
-    ((window.navigator as any).standalone === true ||
+    ((window.navigator as unknown as { standalone?: boolean }).standalone ===
+      true ||
       window.matchMedia("(display-mode: standalone)").matches);
 
   const isIOS =
     typeof window !== "undefined" &&
     /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-    !(window as any).MSStream;
+    !(window as unknown as { MSStream?: string }).MSStream;
 
-  /** 설치 가능 여부 캐치 (상태 저장 목적 아님) */
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
@@ -36,7 +35,6 @@ export default function InstallPrompt() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  /** 설치 버튼 클릭: 조건 안 맞으면 조용히 종료 */
   const handleInstallClick = async () => {
     if (isStandalone) return;
     if (!deferredPrompt) return;
@@ -62,7 +60,7 @@ export default function InstallPrompt() {
 
       <div className="text-sm flex-1">
         <div>Fitcrew 앱설치</div>
-        {true && (
+        {isIOS && (
           <div className="text-xs opacity-50">
             아이폰은 공유 버튼 → 홈화면에 추가
           </div>
