@@ -27,3 +27,9 @@ export type DailyLog = {
     body: BodyLog | null;
     injection: InjectionLog | null;
 }
+
+export type WeekCache = {
+  [weekStart: string]: {
+    [date: string]: DailyLog;
+  };
+};

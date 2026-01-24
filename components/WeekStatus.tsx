@@ -4,14 +4,11 @@ import WeekCalendar from "./WeekCalendar";
 import SafeInner from "./SafeInner";
 import Calendar from "./Calendar";
 import { useLogContext } from "./provider/LogProvider";
-import { Spinner } from "./ui/spinner";
-import { Skeleton } from "./ui/skeleton";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function WeekStatus() {
-  const { date, setDate, from, end, weekData, isLoading } = useLogContext();
-
+  const { date, setDate } = useLogContext();
   const handlePrevWeek = () => {
     const prevWeekDate = new Date(date);
     prevWeekDate.setDate(date.getDate() - 7);
@@ -54,13 +51,9 @@ export default function WeekStatus() {
       <div>
         <SafeInner>
           <WeekCalendar
-            date={date}
-            setDate={setDate}
-            fromDate={from}
-            endDate={end}
           />
         </SafeInner>
-        <SafeInner>
+        {/* <SafeInner>
           <div className="flex justify-around gap-1 h-12.5">
             {isLoading
               ? Array.from({ length: 7 }).map((_, index) => (
@@ -88,7 +81,7 @@ export default function WeekStatus() {
                   </div>
                 ))}
           </div>
-        </SafeInner>
+        </SafeInner> */}
       </div>
     </div>
   );

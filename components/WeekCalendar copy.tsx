@@ -6,6 +6,8 @@ import { ko } from "date-fns/locale";
 import { useEffect, useMemo } from "react";
 import { getWeekKey, useLogContext } from "./provider/LogProvider";
 import useEmblaCarousel from "embla-carousel-react";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
 function getWeekDates(baseDate: Date) {
   const start = startOfWeek(baseDate, { weekStartsOn: 1 });
@@ -18,7 +20,6 @@ export default function WeekCalendar() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     startIndex: 1,
-    duration: 20,
   });
 
   // 3주짜리 날짜 배열 (UI 전용)

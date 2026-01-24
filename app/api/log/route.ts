@@ -13,12 +13,11 @@ import { eachDayOfInterval, format } from "date-fns";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
-  const from = searchParams.get("from");
-  const to = searchParams.get("to");
+  const weekStart = searchParams.get("weekStart");
 
-  if (!from || !to) {
+  if (!weekStart) {
     return NextResponse.json(
-      { message: "from and to are required (YYYY-MM-DD)" },
+      { message: "weekStart is required (YYYY-MM-DD)" },
       { status: 400 },
     );
   }
@@ -30,6 +29,12 @@ export async function GET(request: NextRequest) {
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
+  const from = weekStart;;
+  const to = format(
+    new Date(new Date(weekStart).getTime() + 6 * 24 * 60 * 60 * 1000),
+    "yyyy-MM-dd",
+  );
 
   const start = new Date(from + "T00:00:00");
   const end = new Date(to + "T00:00:00");

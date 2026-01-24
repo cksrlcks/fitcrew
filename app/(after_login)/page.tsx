@@ -8,9 +8,9 @@ import WeekStatus from "@/components/WeekStatus";
 import { format } from "date-fns";
 
 export default function Page() {
-  const { date, currentData, weekData, lastInjectionDate } = useLogContext();
+  const { date, currentData, lastInjectionDate, data } = useLogContext();
 
-  const chartData = weekData?.map((log) => ({
+  const chartData = data?.map((log) => ({
     date: format(new Date(log.date), "MM/dd"),
     weight: log.body?.weight ?? null,
   }));
