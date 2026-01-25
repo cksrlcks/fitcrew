@@ -5,17 +5,10 @@ import SafeInner from "./SafeInner";
 import { cn } from "@/lib/utils";
 import { Layers, Syringe } from "lucide-react";
 import { useLogContext } from "./provider/LogProvider";
-import { DailyLog } from "@/lib/type";
 import { Skeleton } from "./ui/skeleton";
 
-type QuickProps = {
-  date: Date | undefined;
-  data?: DailyLog | undefined;
-  lastInjectionDate?: string;
-};
-
-export default function Quick({ date, data, lastInjectionDate }: QuickProps) {
-  const { onOpen, isLoading } = useLogContext();
+export default function Quick() {
+  const { onOpen, isLoading, date, currentData, lastInjectionDate } = useLogContext();
 
   return (
     <SafeInner className="flex gap-1">
@@ -29,7 +22,7 @@ export default function Quick({ date, data, lastInjectionDate }: QuickProps) {
               <Skeleton className="h-4 mb-3"/>
             ) : (
               <>
-                {data?.body?.weight ?? "-"}{" "}
+                {currentData?.body?.weight ?? "-"}{" "}
                 <span className="text-sm font-normal text-gray-500 pl-1">
                   kg
                 </span>
@@ -55,7 +48,7 @@ export default function Quick({ date, data, lastInjectionDate }: QuickProps) {
               <Skeleton className="h-4 mb-3"/>
             ) : (
               <>
-                {data?.injection?.dosage ?? "-"}{" "}
+                {currentData?.injection?.dosage ?? "-"}{" "}
                 <span className="text-sm font-normal text-gray-500 pl-1">
                   mg
                 </span>

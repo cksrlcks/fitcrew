@@ -9,19 +9,9 @@ import {
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { eachDayOfInterval, format } from "date-fns";
+import { DailyLog } from "@/lib/type";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-
-  const weekStart = searchParams.get("weekStart");
-
-  if (!weekStart) {
-    return NextResponse.json(
-      { message: "weekStart is required (YYYY-MM-DD)" },
-      { status: 400 },
-    );
-  }
-
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -30,46 +20,36 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const from = weekStart;;
-  const to = format(
-    new Date(new Date(weekStart).getTime() + 6 * 24 * 60 * 60 * 1000),
-    "yyyy-MM-dd",
-  );
-
-  const start = new Date(from + "T00:00:00");
-  const end = new Date(to + "T00:00:00");
-
-  const dates = eachDayOfInterval({ start, end }).map((d) =>
-    format(d, "yyyy-MM-dd"),
-  );
 
   const [bodyLogs, injectionLogs, lastInjectionDate] = await Promise.all([
     getBodyLogs({
       userId: session.user.id,
-      from,
-      to,
     }),
     getInjectionLogs({
       userId: session.user.id,
-      from,
-      to,
     }),
     getLastInjectionDate({
       userId: session.user.id,
     }),
   ]);
 
-  const bodyMap = new Map(bodyLogs.map((log) => [log.logDate, log]));
-  const injectionMap = new Map(injectionLogs.map((log) => [log.logDate, log]));
+  const dataMap = new Map();
 
-  const data = dates.map((date) => ({
-    date,
-    body: bodyMap.get(date) ?? null,
-    injection: injectionMap.get(date) ?? null,
-  }));
+  bodyLogs.forEach((log) => {
+    dataMap.set(log.logDate, { date: log.logDate, body: log, injection: null });
+  });
+
+  injectionLogs.forEach((log) => {
+    const existing = dataMap.get(log.logDate);
+    if (existing) {
+      existing.injection = log;
+    } else {
+      dataMap.set(log.logDate, { date: log.logDate, body: null, injection: log });
+    }
+  });
 
   return NextResponse.json({
-    data,
+    data: Object.fromEntries(dataMap),
     lastInjectionDate,
   });
 }

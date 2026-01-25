@@ -6,32 +6,52 @@ import Calendar from "./Calendar";
 import { useLogContext } from "./provider/LogProvider";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 
 export default function WeekStatus() {
-  const { date, setDate } = useLogContext();
+  const { date, setDate, displayDate, setDisplayDate } = useLogContext();
+
   const handlePrevWeek = () => {
-    const prevWeekDate = new Date(date);
-    prevWeekDate.setDate(date.getDate() - 7);
-    setDate(prevWeekDate);
+    const prevWeekDate = new Date(displayDate);
+    prevWeekDate.setDate(prevWeekDate.getDate() - 7);
+    setDisplayDate(prevWeekDate);
+  };
+  const handleNextWeek = () => {
+    const nextWeekDate = new Date(displayDate);
+    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+    setDisplayDate(nextWeekDate);
   };
 
-  const handleNextWeek = () => {
-    const nextWeekDate = new Date(date);
-    nextWeekDate.setDate(date.getDate() + 7);
-    setDate(nextWeekDate);
-  };
+  // displayDate의 주에 오늘 날짜가 포함되는지 여부
+  const isShowToday = !isWithinInterval(new Date(), {
+    start: startOfWeek(displayDate, { weekStartsOn: 1 }), // 월요일 시작
+    end: endOfWeek(displayDate, { weekStartsOn: 1 }),
+  });
 
   return (
     <div className="space-y-4">
       <SafeInner className="border-b border-b-gray-100 flex items-center justify-between pb-4">
         <Calendar
           date={date}
-          setDate={(newDate) => setDate(newDate || new Date())}
+          setDate={(newDate) => {
+            setDisplayDate(newDate || new Date());
+            setDate(newDate || new Date());
+          }}
         />
         <div className="flex items-center gap-1">
+          {isShowToday && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setDisplayDate(new Date())}
+            >
+              오늘
+            </Button>
+          )}
           <Button
             type="button"
-            size="icon-xs"
+            size="icon-sm"
             variant="outline"
             onClick={handlePrevWeek}
           >
@@ -39,7 +59,7 @@ export default function WeekStatus() {
           </Button>
           <Button
             type="button"
-            size="icon-xs"
+            size="icon-sm"
             variant="outline"
             onClick={handleNextWeek}
           >
@@ -48,41 +68,9 @@ export default function WeekStatus() {
         </div>
       </SafeInner>
 
-      <div>
-        <SafeInner>
-          <WeekCalendar
-          />
-        </SafeInner>
-        {/* <SafeInner>
-          <div className="flex justify-around gap-1 h-12.5">
-            {isLoading
-              ? Array.from({ length: 7 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col gap-2 items-center text-center w-full py-2 max-w-13 select-none"
-                  >
-                    <Skeleton className="w-full h-2" />
-                    <Skeleton className="w-[50%] h-2" />
-                  </div>
-                ))
-              : weekData?.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col gap-1/2 items-center text-center w-full py-2 max-w-13 select-none text-[11px] font-semibold"
-                  >
-                    <span className="">
-                      {item.body?.weight ? `${item.body.weight}kg` : "-"}
-                    </span>
-                    <span className="opacity-50">
-                      {item.body?.bodyFatRate
-                        ? `${item.body.bodyFatRate}%`
-                        : "-"}
-                    </span>
-                  </div>
-                ))}
-          </div>
-        </SafeInner> */}
-      </div>
+      <SafeInner>
+        <WeekCalendar />
+      </SafeInner>
     </div>
   );
 }

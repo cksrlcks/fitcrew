@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/chart";
 import { format } from "date-fns";
 import SafeInner from "./SafeInner";
+import { useLogContext } from "./provider/LogProvider";
+import { getWeekDates } from "./WeekCalendar";
 
 type ChartProps = {
   data: {
@@ -24,7 +26,15 @@ type ChartProps = {
   }[];
 };
 
-export default function Chart({ data }: ChartProps) {
+export default function Chart() {
+  const { displayDate, data } = useLogContext();
+  const weeks = getWeekDates(displayDate);
+  
+  const chartData = weeks?.map((date) => ({
+    date: format(new Date(date), "MM/dd"),
+    weight: data?.[format(date, "yyyy-MM-dd")]?.body?.weight ?? null,
+  }));
+
   return (
     <SafeInner className="space-y-3">
       <ChartContainer
@@ -37,7 +47,7 @@ export default function Chart({ data }: ChartProps) {
         className="w-full h-[200px]"
       >
         <LineChart
-          data={data}
+          data={chartData}
           margin={{
             left: 16,
             right: 16,

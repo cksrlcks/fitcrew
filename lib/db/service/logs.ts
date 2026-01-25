@@ -7,12 +7,8 @@ import { BodyLogFormType } from "@/components/BodyLogForm";
 
 export const getBodyLogs = async ({
   userId,
-  from,
-  to,
 }: {
   userId: string;
-  from?: string | null;
-  to?: string | null;
 }) => {
   return db
     .select()
@@ -20,8 +16,6 @@ export const getBodyLogs = async ({
     .where(
       and(
         eq(bodyLogs.userId, userId),
-        from ? gte(bodyLogs.logDate, from) : undefined,
-        to ? lte(bodyLogs.logDate, to) : undefined,
       ),
     )
     .orderBy(desc(bodyLogs.logDate));
@@ -29,12 +23,8 @@ export const getBodyLogs = async ({
 
 export const getInjectionLogs = async ({
   userId,
-  from,
-  to,
 }: {
   userId: string;
-  from?: string | null;
-  to?: string | null;
 }) => {
   return db
     .select()
@@ -42,8 +32,6 @@ export const getInjectionLogs = async ({
     .where(
       and(
         eq(injectionLogs.userId, userId),
-        from ? gte(injectionLogs.logDate, from) : undefined,
-        to ? lte(injectionLogs.logDate, to) : undefined,
       ),
     )
     .orderBy(desc(injectionLogs.logDate));

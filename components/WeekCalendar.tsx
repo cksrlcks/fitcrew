@@ -3,132 +3,146 @@
 import { cn } from "@/lib/utils";
 import { format, isSameDay, addWeeks, addDays, startOfWeek } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useEffect, useMemo } from "react";
-import { getWeekKey, useLogContext } from "./provider/LogProvider";
-import useEmblaCarousel from "embla-carousel-react";
+import { useRef } from "react";
+import { useLogContext } from "./provider/LogProvider";
+import { Skeleton } from "./ui/skeleton";
 
-function getWeekDates(baseDate: Date) {
+export function getWeekDates(baseDate: Date) {
   const start = startOfWeek(baseDate, { weekStartsOn: 1 });
   return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 }
 
+const SWIPE_THRESHOLD = 40;
+
 export default function WeekCalendar() {
-  const { setDate, date, weekDataMap } = useLogContext();
+  const { date, setDate, data, displayDate, setDisplayDate, isLoading } = useLogContext();
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-    startIndex: 1,
-    duration: 20,
-  });
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // 3주짜리 날짜 배열 (UI 전용)
-  const weeks = useMemo(() => {
-    return [
-      getWeekDates(addWeeks(date, -1)),
-      getWeekDates(date),
-      getWeekDates(addWeeks(date, 1)),
-    ];
-  }, [date]);
+  const startXRef = useRef<number | null>(null);
+  const startYRef = useRef<number | null>(null);
 
-  const weekKeys = useMemo(() => {
-    return [
-      getWeekKey(addWeeks(date, -1)),
-      getWeekKey(date),
-      getWeekKey(addWeeks(date, 1)),
-    ];
-  }, [date]);
+  const isSwipingRef = useRef(false);
+  const lockedRef = useRef(false);
 
-  // 스와이프 감지 → date 변경
-  useEffect(() => {
-    if (!emblaApi) return;
-
-    const onSettle = () => {
-      const index = emblaApi.selectedScrollSnap();
-
-      if (index === 0) {
-        const prevWeekDate = new Date(date);
-        prevWeekDate.setDate(date.getDate() - 7);
-
-        setDate(prevWeekDate);
-        setTimeout(() => {
-          emblaApi.scrollTo(1, true);
-        });
-      }
-
-      if (index === 2) {
-        const nextWeekDate = new Date(date);
-        nextWeekDate.setDate(date.getDate() + 7);
-        setDate(nextWeekDate);
-        setTimeout(() => {
-          emblaApi.scrollTo(1, true);
-        });
-      }
-    };
-
-    emblaApi.on("settle", onSettle);
-
-    return () => {
-      emblaApi.off("settle", onSettle);
-    };
-  }, [emblaApi, setDate, date]);
+  const weekDates = getWeekDates(displayDate || new Date());
 
   return (
-    <div className="embla">
-      <div className="embla__viewport" ref={emblaRef}>
-        <div className="embla__container">
-          {weeks.map((weekDates, slideIndex) => {
-            const dataForWeek = weekDataMap[weekKeys[slideIndex]] ?? {};
+    <div
+      ref={containerRef}
+      className="w-full select-none"
+      style={{ touchAction: "pan-y" }}
+      onPointerDown={(e) => {
+        startXRef.current = e.clientX;
+        startYRef.current = e.clientY;
+        isSwipingRef.current = false;
+      }}
+      onPointerMove={(e) => {
+        if (
+          startXRef.current == null ||
+          startYRef.current == null ||
+          isSwipingRef.current
+        )
+          return;
 
-            return (
-              <div
-                key={slideIndex}
-                className="embla__slide flex justify-around gap-1"
+        const dx = e.clientX - startXRef.current;
+        const dy = e.clientY - startYRef.current;
+
+        if (Math.abs(dx) < Math.abs(dy)) return;
+
+        if (Math.abs(dx) >= SWIPE_THRESHOLD) {
+          isSwipingRef.current = true;
+
+          containerRef.current?.setPointerCapture(e.pointerId);
+        }
+      }}
+      onPointerUp={(e) => {
+        if (containerRef.current?.hasPointerCapture(e.pointerId)) {
+          containerRef.current.releasePointerCapture(e.pointerId);
+        }
+
+        if (
+          lockedRef.current ||
+          !isSwipingRef.current ||
+          startXRef.current == null
+        ) {
+          startXRef.current = null;
+          startYRef.current = null;
+          isSwipingRef.current = false;
+          return;
+        }
+
+        const dx = e.clientX - startXRef.current;
+
+        lockedRef.current = true;
+
+        if (dx < 0) {
+          setDisplayDate((d) => addWeeks(d, 1));
+        } else {
+          setDisplayDate((d) => addWeeks(d, -1));
+        }
+
+        startXRef.current = null;
+        startYRef.current = null;
+        isSwipingRef.current = false;
+
+        setTimeout(() => {
+          lockedRef.current = false;
+        }, 120);
+      }}
+      onPointerCancel={() => {
+        startXRef.current = null;
+        startYRef.current = null;
+        isSwipingRef.current = false;
+        lockedRef.current = false;
+      }}
+    >
+      <div className="flex justify-around gap-1">
+        {weekDates.map((day, dayIndex) => {
+          const key = format(day, "yyyy-MM-dd");
+
+          return (
+            <div key={key} className="flex flex-col items-center gap-1 flex-1">
+              <button
+                type="button"
+                className={cn(
+                  "flex flex-col gap-1 items-center w-full py-2 rounded-lg max-w-13",
+                  (dayIndex === 5 || dayIndex === 6) && "text-orange-500",
+                  isSameDay(day, date) &&
+                    "bg-slate-800 text-white font-semibold",
+                  isSameDay(day, new Date()) &&
+                    !isSameDay(day, date) &&
+                    "bg-orange-100/50",
+                )}
+                onClick={() => setDate(day)}
               >
-                {weekDates.map((day, dayIndex) => {
-                  return (
-                    <div
-                      key={day.toISOString()}
-                      className="flex flex-col items-center gap-1 flex-1"
-                    >
-                      <button
-                        type="button"
-                        className={cn(
-                          "flex flex-col gap-1 items-center w-full py-2 rounded-lg max-w-13",
-                          (dayIndex === 5 || dayIndex === 6) &&
-                            "text-orange-500",
-                          isSameDay(day, date) &&
-                            "bg-slate-800 text-white font-semibold",
-                          isSameDay(day, new Date()) &&
-                            !isSameDay(day, date) &&
-                            "bg-orange-100/50",
-                        )}
-                        onClick={() => setDate(day)}
-                      >
-                        <span className="text-sm font-semibold">
-                          {format(day, "dd")}
-                        </span>
-                        <span className="text-xs opacity-50">
-                          {format(day, "EEE", { locale: ko })}
-                        </span>
-                      </button>
+                <span className="text-sm font-semibold">
+                  {format(day, "dd")}
+                </span>
+                <span className="text-xs opacity-50">
+                  {format(day, "EEE", { locale: ko })}
+                </span>
+              </button>
 
-                      <div className="text-[11px] text-center font-semibold">
-                        <div>
-                          {dataForWeek[format(day, "yyyy-MM-dd")]?.body
-                            ?.weight ?? "-"}
-                        </div>
-                        <div className="opacity-50">
-                          {dataForWeek[format(day, "yyyy-MM-dd")]?.body
-                            ?.bodyFatRate ?? "-"}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+              {isLoading ? (
+                <div
+                  key={dayIndex}
+                  className="flex flex-col gap-2 items-center text-center w-full py-2 max-w-13 select-none"
+                >
+                  <Skeleton className="w-full h-2" />
+                  <Skeleton className="w-[50%] h-2" />
+                </div>
+              ) : (
+                <div className="text-[11px] text-center font-semibold">
+                  <div>{data?.[key]?.body?.weight ?? "-"}</div>
+                  <div className="opacity-50">
+                    {data?.[key]?.body?.bodyFatRate ?? "-"}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
