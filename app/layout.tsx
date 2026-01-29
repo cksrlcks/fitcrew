@@ -7,6 +7,7 @@ import MobileContainer from "@/components/MobileContainer";
 import { LogProvider } from "@/components/provider/LogProvider";
 import PWA from "@/components/PWA";
 import ServiceWorkerRegister from "@/components/ServiceWork";
+import AuthProvider from "@/components/provider/AuthProvider";
 
 export const metadata: Metadata = {
   title: "FitCrew - 같이 관리하는 체중 관리 앱",
@@ -19,21 +20,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <QueryProvider>
-      <NuqsAdapter>
-        <LogProvider>
-          <ServiceWorkerRegister />
-          <html lang="ko">
-            <body className="antialiased bg-gray-100">
-              <MobileContainer>
-                <PWA />
-                {children}
-              </MobileContainer>
-              <Toaster />
-            </body>
-          </html>
-        </LogProvider>
-      </NuqsAdapter>
-    </QueryProvider>
+    <html lang="ko">
+      <body className="antialiased bg-gray-100">
+        <QueryProvider>
+          <NuqsAdapter>
+            <AuthProvider>
+              <LogProvider>
+                <ServiceWorkerRegister />
+                <MobileContainer>
+                  <PWA />
+                  {children}
+                </MobileContainer>
+                <Toaster />
+              </LogProvider>
+            </AuthProvider>
+          </NuqsAdapter>
+        </QueryProvider>
+      </body>
+    </html>
   );
 }

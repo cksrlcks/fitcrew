@@ -14,12 +14,6 @@ export const auth = betterAuth({
       prompt: "login",
     },
   },
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    },
-  },
   plugins: [
     genericOAuth({
       config: [

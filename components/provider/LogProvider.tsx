@@ -10,6 +10,7 @@ import LogDrawer from "../LogDrawer";
 import { useQuery } from "@tanstack/react-query";
 import { DailyLog } from "@/lib/type";
 import { format, startOfWeek } from "date-fns";
+import { useAuth } from "@/hook/useAuth";
 
 type LogType = "weight" | "injection";
 
@@ -35,6 +36,7 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
   const [type, setType] = useState<LogType>("weight");
   const [date, setDate] = useState<Date>(new Date());
   const [displayDate, setDisplayDate] = useState(date);
+  const { session } = useAuth();
 
   const onOpen = (value: boolean, logType: LogType, date?: Date) => {
     setIsOpen(value);
@@ -58,6 +60,7 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
     },
     staleTime: Infinity,
     gcTime: 1000 * 60 * 10,
+    enabled: !!session,
   });
 
   const currentData = data?.data[format(date, "yyyy-MM-dd")];
