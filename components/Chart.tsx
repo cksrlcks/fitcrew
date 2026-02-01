@@ -62,6 +62,7 @@ export default function Chart() {
             tickMargin={10}
             tickFormatter={(date) => format(date, "M/dd")}
           />
+          <YAxis domain={["dataMin - 2", "dataMax + 2"]} hide />
           <ChartTooltip content={<ChartTooltipContent />} />
           <Line
             dataKey="weight"
