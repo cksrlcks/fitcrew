@@ -4,6 +4,7 @@ import {
   createContext,
   PropsWithChildren,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import LogDrawer from "../LogDrawer";
@@ -64,6 +65,20 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
   });
 
   const currentData = data?.data[format(date, "yyyy-MM-dd")];
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setDate(new Date());
+      }
+    };
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   return (
     <LogContext.Provider
