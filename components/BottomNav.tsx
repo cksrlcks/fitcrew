@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LucideIcon, TrendingUp, Users } from "lucide-react";
+import { LucideIcon, TrendingUp, Users } from "lucide-react";
 
 type View = "dashboard" | "party" | "progress";
 type NavItem = {

@@ -8,10 +8,8 @@ import {
 } from "@/lib/db/service/logs";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { eachDayOfInterval, format } from "date-fns";
-import { DailyLog } from "@/lib/type";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

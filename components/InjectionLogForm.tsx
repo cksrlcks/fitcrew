@@ -20,7 +20,6 @@ import { Button } from "./ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useLogContext } from "./provider/LogProvider";
-import { Select } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 

@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "..";
 import { bodyLogs } from "../schema";
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { injectionLogs } from "../schema/injection-logs";
 import { BodyLogFormType } from "@/components/BodyLogForm";
 

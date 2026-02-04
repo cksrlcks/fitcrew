@@ -1,11 +1,9 @@
 "use client";
 
 import Chart from "@/components/Chart";
-import { useLogContext } from "@/components/provider/LogProvider";
 import Quick from "@/components/Quick";
 import { Separator } from "@/components/ui/separator";
 import WeekStatus from "@/components/WeekStatus";
-import { format } from "date-fns";
 
 export default function Page() {
   return (

@@ -19,13 +19,6 @@ import SafeInner from "./SafeInner";
 import { useLogContext } from "./provider/LogProvider";
 import { getWeekDates } from "./WeekCalendar";
 
-type ChartProps = {
-  data: {
-    date: string;
-    weight: number | null;
-  }[];
-};
-
 export default function Chart() {
   const { displayDate, data } = useLogContext();
   const weeks = getWeekDates(displayDate);

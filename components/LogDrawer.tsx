@@ -6,7 +6,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useLogContext } from "./provider/LogProvider";
 import { LogType } from "@/lib/type";
@@ -19,7 +19,7 @@ const TYPE_KOREAN: Record<LogType, string> = {
 };
 
 export default function LogDrawer() {
-  const { isOpen, setIsOpen, type, setType, date } = useLogContext();
+  const { isOpen, setIsOpen, type, setType } = useLogContext();
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
