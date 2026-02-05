@@ -1,4 +1,4 @@
-CREATE TYPE "public"."drug_type" AS ENUM('MOUNJARO', 'WEGOVY');--> statement-breakpoint
+
 CREATE TABLE "body_logs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" text NOT NULL,
@@ -69,10 +69,29 @@ CREATE TABLE "injection_logs" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "parties" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" text NOT NULL,
+	"invite_code" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"owner_id" text NOT NULL,
+	CONSTRAINT "parties_invite_code_unique" UNIQUE("invite_code")
+);
+--> statement-breakpoint
+CREATE TABLE "party_members" (
+	"party_id" uuid NOT NULL,
+	"user_id" text NOT NULL,
+	"joined_at" timestamp with time zone DEFAULT now(),
+	CONSTRAINT "party_members_party_id_user_id_pk" PRIMARY KEY("party_id","user_id")
+);
+--> statement-breakpoint
 ALTER TABLE "body_logs" ADD CONSTRAINT "body_logs_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "injection_logs" ADD CONSTRAINT "injection_logs_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "parties" ADD CONSTRAINT "parties_owner_id_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "party_members" ADD CONSTRAINT "party_members_party_id_parties_id_fk" FOREIGN KEY ("party_id") REFERENCES "public"."parties"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "party_members" ADD CONSTRAINT "party_members_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "body_logs_user_date_idx" ON "body_logs" USING btree ("user_id","log_date");--> statement-breakpoint
 CREATE INDEX "account_userId_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "session_userId_idx" ON "session" USING btree ("user_id");--> statement-breakpoint

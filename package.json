@@ -22,6 +22,7 @@
     "drizzle-orm": "^0.45.1",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.562.0",
+    "nanoid": "^5.1.6",
     "next": "16.1.1",
     "nuqs": "^2.8.6",
     "postgres": "^3.4.8",
