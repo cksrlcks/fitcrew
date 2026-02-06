@@ -5,7 +5,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
 import MobileContainer from "@/components/MobileContainer";
 import { LogProvider } from "@/components/provider/LogProvider";
-import PWA from "@/components/PWA";
+//import PWA from "@/components/PWA";
 import ServiceWorkerRegister from "@/components/ServiceWork";
 import AuthProvider from "@/components/provider/AuthProvider";
 
@@ -28,7 +28,7 @@ export default function RootLayout({
               <LogProvider>
                 <ServiceWorkerRegister />
                 <MobileContainer>
-                  <PWA />
+                  {/* <PWA /> */}
                   {children}
                 </MobileContainer>
                 <Toaster />
