@@ -131,7 +131,7 @@ export default function BodyLogForm({ onClose }: BodyLogFormProps) {
           <FieldError>{errors.muscleMass?.message}</FieldError>
         </Field>
       </FieldGroup>
-      <div className="flex gap-2 mt-4 mb-4 pt-4 sticky bottom-0 bg-white">
+      <div className="flex gap-2 mt-4 mb-4 pt-4 sticky bottom-0 bg-background">
         {onClose && (
           <Button
             type="button"

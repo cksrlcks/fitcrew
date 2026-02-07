@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LucideIcon, TrendingUp, Users } from "lucide-react";
+import LogAddButton from "./LogAddButton";
 
 type View = "dashboard" | "party" | "progress";
 type NavItem = {
@@ -26,7 +27,7 @@ function getActiveView(pathname: string): View | null {
 }
 
 const Nav: NavItem[] = [
-  { label: "진행상황", href: "/", view: "dashboard", icon: <TrendingUp size={18} /> },
+  { label: "진행상황", href: "/progress", view: "progress", icon: <TrendingUp size={18} /> },
   { label: "파티", href: "/party", view: "party", icon: <Users size={18} /> },
 ];
 
@@ -34,7 +35,9 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-white max-w-md mx-auto shadow-[0_-1px_16px_rgba(0,0,0,0.08)]">
+    <nav className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-0 right-0 max-w-md mx-auto bg-card rounded-full">
+      <LogAddButton />
+      
       <ul className="flex justify-around py-2 ">
         {Nav.map(({ label, href, view, icon }) => {
           const activeView = getActiveView(pathname);

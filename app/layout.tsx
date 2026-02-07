@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body className="antialiased bg-gray-100">
+    <html lang="ko" className="dark">
+      <body className="antialiased">
         <QueryProvider>
           <NuqsAdapter>
             <AuthProvider>

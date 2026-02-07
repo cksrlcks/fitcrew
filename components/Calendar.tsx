@@ -29,10 +29,10 @@ export default function Calendar({ date, setDate }: CalendarProps) {
           className="flex items-center gap-2 cursor-pointer"
         >
           <span className="font-semibold tracking-tight">
-            {format(date ?? new Date(), "yyyy년 MM월 dd일")}
+            {format(date ?? new Date(), "yyyy년 MM월 dd일")} 기록
           </span>
-          <span className="bg-black flex items-center justify-center rounded-full w-4 h-4 -mt-0.5">
-            <ChevronDownIcon className="size-3 text-white" />
+          <span className="bg-primary flex items-center justify-center rounded-full w-4 h-4 -mt-0.5">
+            <ChevronDownIcon className="size-3 text-black" />
           </span>
         </button>
       </DialogTrigger>

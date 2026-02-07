@@ -5,7 +5,6 @@ import {
   Line,
   XAxis,
   CartesianGrid,
-  Dot,
   LabelList,
   YAxis,
 } from "recharts";
@@ -14,19 +13,58 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { format } from "date-fns";
+import { eachDayOfInterval, format, parse } from "date-fns";
 import SafeInner from "./SafeInner";
 import { useLogContext } from "./provider/LogProvider";
-import { getWeekDates } from "./WeekCalendar";
+import { DailyLog } from "@/lib/type";
+
+const buildChartData = (data?: Record<string, DailyLog>) => {
+  if (!data) return [];
+
+  const keys = Object.keys(data).filter((key) => data[key]?.body != null);
+  if (keys.length === 0) return [];
+
+  let startKey = keys[0];
+  let endKey = keys[0];
+
+  for (const key of keys) {
+    if (key < startKey) startKey = key;
+    if (key > endKey) endKey = key;
+  }
+
+  const startDate = parse(startKey, "yyyy-MM-dd", new Date());
+  const endDate = parse(endKey, "yyyy-MM-dd", new Date());
+
+  return eachDayOfInterval({ start: startDate, end: endDate }).map((d) => {
+    const key = format(d, "yyyy-MM-dd");
+
+    return {
+      date: key,
+      weight: data[key]?.body?.weight ?? null,
+    };
+  });
+};
 
 export default function Chart() {
   const { displayDate, data } = useLogContext();
-  const weeks = getWeekDates(displayDate);
-  
-  const chartData = weeks?.map((date) => ({
-    date: format(new Date(date), "MM/dd"),
-    weight: data?.[format(date, "yyyy-MM-dd")]?.body?.weight ?? null,
-  }));
+  const chartData = buildChartData(data);
+
+  const xTicks = (() => {
+    if (chartData.length === 0) return [];
+
+    const lastIndex = chartData.length - 1;
+    const mid1 = Math.floor(lastIndex / 3);
+    const mid2 = Math.floor((lastIndex * 2) / 3);
+
+    return [
+      chartData[0].date,
+      chartData[mid1].date,
+      chartData[mid2].date,
+      chartData[lastIndex].date,
+    ];
+  })();
+
+  console.log(xTicks);
 
   return (
     <SafeInner className="space-y-3">
@@ -39,44 +77,34 @@ export default function Chart() {
         }}
         className="w-full h-[200px]"
       >
-        <LineChart
-          data={chartData}
-          margin={{
-            left: 16,
-            right: 16,
-          }}
-          height={100}
-        >
-          <CartesianGrid vertical={false} stroke="#ddd" strokeDasharray="3 3" />
+        <LineChart data={chartData} height={100}>
+          <CartesianGrid vertical={false} stroke="#333" strokeDasharray="3 6" />
           <XAxis
             dataKey="date"
             tickLine={false}
             axisLine={false}
             tickMargin={10}
             tickFormatter={(date) => format(date, "M/dd")}
+            ticks={xTicks}
+            interval="preserveStartEnd"
           />
-          <YAxis domain={["dataMin - 2", "dataMax + 2"]} hide />
+          <YAxis
+            domain={["dataMin - 2", "dataMax + 2"]}
+            width={32} // ← 핵심
+            axisLine={false}
+            hide
+          />
           <ChartTooltip content={<ChartTooltipContent />} />
           <Line
             dataKey="weight"
             type="monotone"
             connectNulls
             stroke="var(--primary)"
-            strokeOpacity={0.2}
-            strokeWidth={2}
+            strokeOpacity={1}
+            strokeWidth={4}
             fill="var(--primary)"
             isAnimationActive={false}
-            dot={({ payload, ...props }) => {
-              return (
-                <Dot
-                  key={payload.date}
-                  r={4}
-                  cx={props.cx}
-                  cy={props.cy}
-                  fill="var(--primary)"
-                />
-              );
-            }}
+            dot={false}
           >
             <LabelList
               position="top"
@@ -84,6 +112,32 @@ export default function Chart() {
               className="fill-foreground"
               fontSize={12}
               formatter={(data: number) => Number(data).toString()}
+              content={({ x, y, value, index }) => {
+                if (value == null || index == null) return null;
+
+                const lastIndex = chartData.length - 1;
+                const shouldRender = index === 0 || index === lastIndex;
+
+                if (!shouldRender) return null;
+
+                return (
+                  <text
+                    x={
+                      index === 0
+                        ? 20
+                        : index === lastIndex
+                          ? Number(x) - 18
+                          : x
+                    }
+                    y={Number(y || 0) - 10}
+                    textAnchor="middle"
+                    fill="currentColor"
+                    fontSize={12}
+                  >
+                    {value}
+                  </text>
+                );
+              }}
             />
           </Line>
         </LineChart>
