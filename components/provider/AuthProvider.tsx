@@ -8,16 +8,16 @@ export default function AuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { loading, session } = useAuth();
-  const pathname = usePathname();
+  // const { loading, session } = useAuth();
+  // const pathname = usePathname();
 
-  if (loading) {
-    return null;
-  }
+  // if (loading) {
+  //   return null;
+  // }
 
-  if (!session && pathname !== "/login") {
-    return redirect("/login");
-  }
+  // if (!session && pathname !== "/login") {
+  //   return redirect("/login");
+  // }
 
   return <>{children}</>;
 }
