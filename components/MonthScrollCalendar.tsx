@@ -132,8 +132,18 @@ export default function MonthScrollCalendar() {
                       key={dayIndex}
                       className="flex flex-col gap-2 items-center text-center w-full py-2 max-w-13 select-none"
                     >
-                      <Skeleton className="w-full h-2" />
-                      <Skeleton className="w-[50%] h-2" />
+                      <Skeleton
+                        className={cn(
+                          "w-full h-2",
+                          isSameDay(day, date) && "bg-primary/50",
+                        )}
+                      />
+                      <Skeleton
+                        className={cn(
+                          "w-[50%] h-2",
+                          isSameDay(day, date) && "bg-primary/50",
+                        )}
+                      />
                     </div>
                   ) : (
                     <div className="text-[12px] text-center font-semibold">
