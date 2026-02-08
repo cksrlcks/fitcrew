@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: 'https://fitcrew.vercel.app',
     scope: 'https://fitcrew.vercel.app',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#000000',
+    background_color: '#333333',
+    theme_color: '#333333',
     icons: [
       {
         src: '/icon-192x192.png',
