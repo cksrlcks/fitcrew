@@ -1,7 +1,6 @@
 "use client";
 
 import { isSameMonth } from "date-fns";
-import SafeInner from "./SafeInner";
 import { useLogContext } from "./provider/LogProvider";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -43,38 +42,36 @@ export default function MonthController() {
   const currentYear = displayDate.getFullYear();
 
   return (
-    <div className="space-y-4">
-      <SafeInner className="flex items-center justify-between pb-4">
-        <div className="text-xl font-bold tracking-tight flex items-center gap-1">
-          {currentYear}년 {currentMonth + 1}월
-        </div>
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            size="sm"
-            variant="default"
-            onClick={() => setDisplayDate(new Date())}
-          >
-            오늘
-          </Button>
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="outline"
-            onClick={handlePrevMonth}
-          >
-            <ChevronLeft size={10} />
-          </Button>
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="outline"
-            onClick={handleNextMonth}
-          >
-            <ChevronRight size={10} />
-          </Button>
-        </div>
-      </SafeInner>
+    <div className="flex items-center justify-between mb-4">
+      <div className="text-xl font-bold tracking-tight flex items-center gap-1">
+        {currentYear}년 {currentMonth + 1}월
+      </div>
+      <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          size="sm"
+          variant="default"
+          onClick={() => setDisplayDate(new Date())}
+        >
+          오늘
+        </Button>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="outline"
+          onClick={handlePrevMonth}
+        >
+          <ChevronLeft size={10} />
+        </Button>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="outline"
+          onClick={handleNextMonth}
+        >
+          <ChevronRight size={10} />
+        </Button>
+      </div>
     </div>
   );
 }

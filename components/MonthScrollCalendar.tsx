@@ -78,88 +78,84 @@ export default function MonthScrollCalendar() {
   }, [date, displayDate]);
 
   return (
-    <SafeInner>
-      <div className="relative">
-        <span className="absolute left-0 top-0 h-[calc(100%-10px)] w-4 bg-linear-to-r from-background to-background/0 z-1"></span>
+    <div className="relative">
+      <span className="absolute left-0 top-0 h-[calc(100%-10px)] w-4 bg-linear-to-r from-background to-background/0 z-1"></span>
 
-        <div
-          className="flex gap-2 whitespace-nowrap overflow-x-auto px-4 lg:px-5 relative custom-scrollbar pb-4 select-none"
-          ref={containerRef}
-        >
-          {daysInMonthArray.map((day) => {
-            const dayIndex = day.getDay();
-            const key = format(day, "yyyy-MM-dd");
-            const isToday = isSameDay(day, new Date());
-            const isFirst = day.getDate() === 1;
-            const isLast = day.getDate() === endDate.getDate();
+      <div
+        className="flex gap-2 whitespace-nowrap overflow-x-auto px-4 lg:px-5 relative custom-scrollbar pb-4 select-none"
+        ref={containerRef}
+      >
+        {daysInMonthArray.map((day) => {
+          const dayIndex = day.getDay();
+          const key = format(day, "yyyy-MM-dd");
+          const isToday = isSameDay(day, new Date());
+          const isFirst = day.getDate() === 1;
+          const isLast = day.getDate() === endDate.getDate();
 
-            return (
-              <div key={format(day, "yyyy-MM-dd")}>
-                <button
-                  type="button"
+          return (
+            <div key={format(day, "yyyy-MM-dd")}>
+              <button
+                type="button"
+                className={cn(
+                  "flex flex-col justify-center gap-2 items-center h-30 max-w-16 w-[30vw] rounded-full text-white cursor-pointer",
+                  isSameDay(day, date) &&
+                    "bg-primary/10 text-primary font-semibold",
+                  isToday && !isSameDay(day, date) && "bg-card",
+                )}
+                data-first={isFirst ? "true" : undefined}
+                data-last={isLast ? "true" : undefined}
+                data-today={isToday ? "true" : undefined}
+                data-date={format(day, "yyyy-MM-dd")}
+                onClick={() => {
+                  setDate(day);
+                }}
+              >
+                <div
                   className={cn(
-                    "flex flex-col justify-center gap-2 items-center h-30 max-w-16 w-[30vw] rounded-full text-white cursor-pointer",
-                    isSameDay(day, date) &&
-                      "bg-primary/10 text-primary font-semibold",
-                    isToday && !isSameDay(day, date) && "bg-card",
+                    "flex flex-col items-center",
+                    dayIndex === 6 && "text-blue-500",
+                    dayIndex === 0 && "text-orange-500",
+                    isSameDay(day, date) && "text-primary",
                   )}
-                  data-first={isFirst ? "true" : undefined}
-                  data-last={isLast ? "true" : undefined}
-                  data-today={isToday ? "true" : undefined}
-                  data-date={format(day, "yyyy-MM-dd")}
-                  onClick={() => {
-                    setDate(day);
-                  }}
                 >
-                  <div
-                    className={cn(
-                      "flex flex-col items-center",
-                      dayIndex === 6 && "text-blue-500",
-                      dayIndex === 0 && "text-orange-500",
-                      isSameDay(day, date) && "text-primary",
-                    )}
-                  >
-                    <span className="text-lg font-bold">
-                      {format(day, "dd")}
-                    </span>
-                    <span className="text-xs opacity-50">
-                      {format(day, "EEE", { locale: ko })}
-                    </span>
-                  </div>
+                  <span className="text-lg font-bold">{format(day, "dd")}</span>
+                  <span className="text-xs opacity-50">
+                    {format(day, "EEE", { locale: ko })}
+                  </span>
+                </div>
 
-                  {isLoading ? (
-                    <div
-                      key={dayIndex}
-                      className="flex flex-col gap-2 items-center text-center w-full py-2 max-w-13 select-none"
-                    >
-                      <Skeleton
-                        className={cn(
-                          "w-full h-2",
-                          isSameDay(day, date) && "bg-primary/50",
-                        )}
-                      />
-                      <Skeleton
-                        className={cn(
-                          "w-[50%] h-2",
-                          isSameDay(day, date) && "bg-primary/50",
-                        )}
-                      />
+                {isLoading ? (
+                  <div
+                    key={dayIndex}
+                    className="flex flex-col gap-2 items-center text-center w-full py-2 max-w-13 select-none"
+                  >
+                    <Skeleton
+                      className={cn(
+                        "w-full h-2",
+                        isSameDay(day, date) && "bg-primary/50",
+                      )}
+                    />
+                    <Skeleton
+                      className={cn(
+                        "w-[50%] h-2",
+                        isSameDay(day, date) && "bg-primary/50",
+                      )}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-[12px] text-center font-semibold">
+                    <div>{data?.[key]?.body?.weight ?? "-"}</div>
+                    <div className="opacity-50">
+                      {data?.[key]?.body?.bodyFatRate ?? "-"}
                     </div>
-                  ) : (
-                    <div className="text-[12px] text-center font-semibold">
-                      <div>{data?.[key]?.body?.weight ?? "-"}</div>
-                      <div className="opacity-50">
-                        {data?.[key]?.body?.bodyFatRate ?? "-"}
-                      </div>
-                    </div>
-                  )}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-        <span className="absolute right-0 top-0 h-[calc(100%-10px)] w-4 bg-linear-to-l from-background to-background/0 z-1"></span>
+                  </div>
+                )}
+              </button>
+            </div>
+          );
+        })}
       </div>
-    </SafeInner>
+      <span className="absolute right-0 top-0 h-[calc(100%-10px)] w-4 bg-linear-to-l from-background to-background/0 z-1"></span>
+    </div>
   );
 }

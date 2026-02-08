@@ -45,4 +45,9 @@ export const auth = betterAuth({
   advanced: {
     disableOriginCheck: process.env.NODE_ENV !== "production",
   },
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
 });
