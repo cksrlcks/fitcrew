@@ -1,5 +1,5 @@
 import { PartyFormType } from "@/components/AddPartyModal";
-import { Party, PartyDetail } from "@/lib/type";
+import { Party, PartyDetail, PartySummary } from "@/lib/type";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const usePartyQuery = () => {
@@ -145,5 +145,24 @@ export const useDeletePartyMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["party"] });
     },
+  });
+};
+
+export const usePartySummaryQuery = (partyId: string) => {
+  return useQuery({
+    queryKey: ["party", partyId, "summary"],
+    queryFn: async (): Promise<{ data: PartySummary }> => {
+      const response = await fetch(`/api/party/${partyId}/summary`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch party summary");
+      }
+      return response.json();
+    },
+    enabled: !!partyId,
   });
 };

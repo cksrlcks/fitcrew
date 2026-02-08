@@ -1,10 +1,12 @@
 import { db } from "..";
-import { eq, and, count } from "drizzle-orm";
+import { eq, and, count, sql, asc, inArray } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import { partyMembers } from "../schema/parties";
 import { parties } from "../schema/parties";
 import { user } from "../schema/users";
 import { alias } from "drizzle-orm/pg-core";
+import { formatISO, subDays } from "date-fns";
+import { bodyLogs } from "../schema";
 
 const generateInviteCode = customAlphabet(
   "23456789ABCDEFGHJKLMNPQRSTUVWXYZ",
@@ -159,4 +161,138 @@ export const updateParty = async (
     .returning();
 
   return updatedParty;
+};
+
+export const checkUserInParty = async (partyId: string, userId: string) => {
+  const countResult = await db
+    .select({ count: count() })
+    .from(partyMembers)
+    .where(
+      and(eq(partyMembers.partyId, partyId), eq(partyMembers.userId, userId)),
+    );
+  return countResult[0].count > 0;
+};
+
+export const getPartySummary = async (partyId: string) => {
+  const today = new Date();
+  const todayStr = formatISO(today, { representation: "date" });
+
+  const members = await db
+    .select({
+      userId: partyMembers.userId,
+      name: user.name,
+    })
+    .from(partyMembers)
+    .innerJoin(user, eq(partyMembers.userId, user.id))
+    .where(eq(partyMembers.partyId, partyId));
+
+  if (members.length === 0) {
+    return {
+      partyId,
+      asOf: todayStr,
+      members: [],
+    };
+  }
+
+  const userIds = members.map((m) => m.userId);
+
+  const logs = await db
+    .select({
+      userId: bodyLogs.userId,
+      logDate: bodyLogs.logDate,
+      weight: bodyLogs.weight,
+    })
+    .from(bodyLogs)
+    .where(inArray(bodyLogs.userId, userIds))
+    .orderBy(asc(bodyLogs.logDate));
+
+  const logsByUser = new Map<string, Map<string, { weight: number | null }>>();
+
+  for (const log of logs) {
+    if (!logsByUser.has(log.userId)) {
+      logsByUser.set(log.userId, new Map());
+    }
+
+    logsByUser.get(log.userId)!.set(log.logDate, {
+      weight: log.weight != null ? Number(log.weight) : null,
+    });
+  }
+
+  const result = members.map((member) => {
+    const userLogMap = logsByUser.get(member.userId) ?? new Map();
+    const allDates = [...userLogMap.keys()].sort();
+
+    const startDate = allDates[0];
+    const endDate = allDates[allDates.length - 1];
+
+    const startWeight =
+      startDate != null
+        ? userLogMap.get(startDate)?.weight ?? null
+        : null;
+
+    const currentWeight =
+      endDate != null
+        ? userLogMap.get(endDate)?.weight ?? null
+        : null;
+
+    const totalChange =
+      startWeight != null && currentWeight != null
+        ? Number((currentWeight - startWeight).toFixed(2))
+        : null;
+
+    const lossRate =
+      startWeight != null && currentWeight != null
+        ? Number(
+            (((startWeight - currentWeight) / startWeight) * 100).toFixed(2),
+          )
+        : null;
+
+    const recent7Days = Array.from({ length: 7 }).map((_, i) => {
+      const d = subDays(today, 6 - i);
+      const dateStr = formatISO(d, { representation: "date" });
+
+      return {
+        date: dateStr,
+        weight: userLogMap.get(dateStr)?.weight ?? null,
+      };
+    });
+
+      const hasAnyRecord = recent7Days.some(
+      (d) => d.weight != null,
+    );
+
+    let streakDays = 0;
+    for (let i = recent7Days.length - 1; i >= 0; i--) {
+      if (recent7Days[i].weight != null) {
+        streakDays++;
+      } else {
+        break;
+      }
+    }
+
+     return {
+      userId: member.userId,
+      name: member.name,
+
+      recent7Days: {
+        hasAnyRecord,
+        days: recent7Days,
+      },
+
+      stats: {
+        startWeight,
+        currentWeight,
+        totalChange,
+        streakDays,
+        lossRate,
+      },
+    };
+  });
+
+  return {
+    partyId,
+    asOf: todayStr,
+    members: result,
+  };
+    
 };

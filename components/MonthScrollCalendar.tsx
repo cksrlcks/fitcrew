@@ -14,7 +14,6 @@ import { ko } from "date-fns/locale";
 import { useEffect, useRef } from "react";
 import { useLogContext } from "./provider/LogProvider";
 import { Skeleton } from "./ui/skeleton";
-import SafeInner from "./SafeInner";
 
 export default function MonthScrollCalendar() {
   const { date, setDate, data, displayDate, isLoading } = useLogContext();
