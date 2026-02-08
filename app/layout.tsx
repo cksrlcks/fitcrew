@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="dark scrollbar-hide">
-      <body className="antialiased scrollbar-hide">
+    <html lang="ko" className="dark overflow-hidden">
+      <body className="antialiased overflow-hidden">
         <QueryProvider>
           <NuqsAdapter>
             <AuthProvider>
