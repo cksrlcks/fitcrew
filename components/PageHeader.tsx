@@ -8,9 +8,9 @@ type PageHeaderProps = PropsWithChildren<{
 export default function PageHeader({ title, desc, children }: PageHeaderProps) {
   return (
     <div className="flex justify-between items-center">
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        <div className="text-foreground/50">{desc}</div>
+      <div className="space-y-0.5">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <div className="text-foreground/50 text-sm">{desc}</div>
       </div>
       {children}
     </div>

@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react";
 
 export default function StackLayout({ children }: PropsWithChildren) {
   return (
-    <SafeInner className="space-y-4">
+    <SafeInner className="space-y-4 pb-10">
       <StackHeader />
       {children}
     </SafeInner>

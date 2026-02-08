@@ -7,6 +7,7 @@ import { user } from "../schema/users";
 import { alias } from "drizzle-orm/pg-core";
 import { formatISO, subDays } from "date-fns";
 import { bodyLogs } from "../schema";
+import { formatInTimeZone } from "date-fns-tz";
 
 const generateInviteCode = customAlphabet(
   "23456789ABCDEFGHJKLMNPQRSTUVWXYZ",
@@ -175,7 +176,7 @@ export const checkUserInParty = async (partyId: string, userId: string) => {
 
 export const getPartySummary = async (partyId: string) => {
   const today = new Date();
-  const todayStr = formatISO(today, { representation: "date" });
+  const todayStr = formatInTimeZone(today, "Asia/Seoul", "yyyy-MM-dd");
 
   const members = await db
     .select({
@@ -249,7 +250,7 @@ export const getPartySummary = async (partyId: string) => {
 
     const recent7Days = Array.from({ length: 7 }).map((_, i) => {
       const d = subDays(today, 6 - i);
-      const dateStr = formatISO(d, { representation: "date" });
+      const dateStr = formatInTimeZone(d, "Asia/Seoul", "yyyy-MM-dd");
 
       return {
         date: dateStr,
