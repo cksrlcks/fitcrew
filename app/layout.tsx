@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="dark scrollbar-hide">
-      <body className="antialiased">
+      <body className="antialiased scrollbar-hide">
         <QueryProvider>
           <NuqsAdapter>
             <AuthProvider>
