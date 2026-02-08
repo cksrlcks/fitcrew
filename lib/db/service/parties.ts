@@ -1,14 +1,18 @@
 import { db } from "..";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import { partyMembers } from "../schema/parties";
 import { parties } from "../schema/parties";
 import { user } from "../schema/users";
+import { alias } from "drizzle-orm/pg-core";
 
 const generateInviteCode = customAlphabet(
   "23456789ABCDEFGHJKLMNPQRSTUVWXYZ",
   8,
 );
+
+const pmMe = alias(partyMembers, "pmMe");
+const pmAll = alias(partyMembers, "pmAll");
 
 export const getMyParties = async (userId: string) => {
   return await db
@@ -18,10 +22,19 @@ export const getMyParties = async (userId: string) => {
       inviteCode: parties.inviteCode,
       createdAt: parties.createdAt,
       ownerId: parties.ownerId,
+      memberCount: count(pmAll.userId).as("memberCount"),
     })
-    .from(partyMembers)
-    .leftJoin(parties, eq(partyMembers.partyId, parties.id))
-    .where(eq(partyMembers.userId, userId));
+    .from(pmMe)
+    .innerJoin(parties, eq(pmMe.partyId, parties.id))
+    .innerJoin(pmAll, eq(pmAll.partyId, parties.id))
+    .where(eq(pmMe.userId, userId))
+    .groupBy(
+      parties.id,
+      parties.name,
+      parties.inviteCode,
+      parties.createdAt,
+      parties.ownerId,
+    );
 };
 
 export const createParty = async (name: string, ownerId: string) => {
@@ -75,7 +88,7 @@ export const getPartyDetail = async (partyId: string, userId: string) => {
   const isMember = members.some((m) => m.userId === userId);
   if (!isMember) {
     throw new Error("파티 멤버가 아닙니다.");
-  };
+  }
 
   return { ...partyInfo, members };
 };

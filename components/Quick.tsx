@@ -55,7 +55,7 @@ export default function Quick() {
           onClick={() => onOpen(true, "injection", date)}
           disabled={isLoading}
         >
-          <span className="flex w-10 h-10 rounded-full bg-yellow-700/10 text-yellow-700 items-center justify-center">
+          <span className="flex w-10 h-10 rounded-full bg-yellow-500/10 text-yellow-500 items-center justify-center">
             <Syringe size={20} />
           </span>
           <div className="space-y-0.5">

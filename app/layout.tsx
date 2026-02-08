@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="dark">
+    <html lang="ko" className="dark scrollbar-hide">
       <body className="antialiased">
         <QueryProvider>
           <NuqsAdapter>
@@ -31,7 +31,7 @@ export default function RootLayout({
                   {/* <PWA /> */}
                   {children}
                 </MobileContainer>
-                <Toaster />
+                <Toaster position="bottom-center" theme="dark" />
               </LogProvider>
             </AuthProvider>
           </NuqsAdapter>

@@ -33,3 +33,24 @@ export type WeekCache = {
     [date: string]: DailyLog;
   };
 };
+
+export type Party = {
+  id: string;
+  name: string;
+  inviteCode: string;
+  createdAt: string;
+  updatedAt: string;
+  ownerId: string;
+  memberCount: number;
+}
+
+export type PartyDetail = Omit<Party, "memberCount"> & {
+  members: {
+    userId: string;
+    joinedAt: string;
+    user: {
+      id: string;
+      name: string;
+    }
+  }[];
+};
