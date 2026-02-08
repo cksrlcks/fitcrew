@@ -62,6 +62,28 @@ export const useAddPartyMutation = () => {
   });
 };
 
+export const useEditPartyMutation = (partyId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: PartyFormType) => {
+      const response = await fetch(`/api/party/${partyId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to edit party");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["party"] });
+    },
+  });
+};
+
 export const useJoinPartyMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({

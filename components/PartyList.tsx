@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Ticket } from "lucide-react";
 
 export default function PartyList() {
-  const { data, isFetching, isError } = usePartyQuery();
+  const { data, isLoading, isError } = usePartyQuery();
 
   if (isError) {
     return (
@@ -17,7 +17,7 @@ export default function PartyList() {
     );
   }
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-32">
         <Spinner />

@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/hook/useAuth";
 import { PartyDetail } from "@/lib/type";
-import { useDeletePartyMutation, useLeavePartyMutation, usePartyDetailQuery } from "@/query/party";
+import {
+  useDeletePartyMutation,
+  useLeavePartyMutation,
+  usePartyDetailQuery,
+} from "@/query/party";
 import { Copy, Crown } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -20,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import AddPartyModal from "@/components/AddPartyModal";
 
 export type HexColor = `#${string}`;
 export const DEFAULT_COLORS = [
@@ -31,6 +36,7 @@ export const DEFAULT_COLORS = [
   "#4ECDC4",
   "#FFD93D",
   "#5F6CAF",
+  "#D7263D",
 ] as const satisfies HexColor[];
 
 export function getColorByString(value: string, colorArray: readonly string[]) {
@@ -61,7 +67,7 @@ export default function PartyDetailPage() {
   const router = useRouter();
 
   const { session } = useAuth();
-  const { data, isFetching } = usePartyDetailQuery(id || "");
+  const { data, isLoading } = usePartyDetailQuery(id || "");
 
   const formattedMembers = useMemo(() => {
     if (!data) return [];
@@ -72,7 +78,8 @@ export default function PartyDetailPage() {
 
   const { mutateAsync: leaveParty, isPending: isLeaving } =
     useLeavePartyMutation();
-  const { mutateAsync: deleteParty, isPending: isDeleting } = useDeletePartyMutation();
+  const { mutateAsync: deleteParty, isPending: isDeleting } =
+    useDeletePartyMutation();
 
   const handleDelete = async () => {
     if (!id) return;
@@ -113,7 +120,7 @@ export default function PartyDetailPage() {
     return <div>파티를 찾을 수 없습니다.</div>;
   }
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-32">
         <Spinner />
@@ -124,11 +131,21 @@ export default function PartyDetailPage() {
   return (
     <div>
       <div className="space-y-6">
-        <div>
-          <div className="text-xl">{data?.data.name}</div>
-          <div className="text-foreground/50 text-sm">
-            맴버수 {formattedMembers.length}명
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <div className="text-xl">{data?.data.name}</div>
+            <div className="text-foreground/50 text-sm">
+              멤버 {formattedMembers.length}명
+            </div>
           </div>
+
+          {isOwner && (
+            <AddPartyModal mode="edit" partyData={data?.data}>
+              <Button type="button" variant="secondary">
+                수정
+              </Button>
+            </AddPartyModal>
+          )}
         </div>
         <div className="mt-4 flex overflow-x-auto pb-4 py-2">
           {formattedMembers.map((member) => {
@@ -144,7 +161,7 @@ export default function PartyDetailPage() {
                 className="inline-flex flex-col items-center mr-4"
               >
                 <div
-                  className="w-15 h-15 rounded-full bg-card flex items-center justify-center text-2xl font-bold mb-2 relative"
+                  className="w-15 h-15 rounded-full bg-card flex items-center justify-center text-2xl font-semibold mb-2 relative"
                   style={{
                     backgroundColor: colorCode,
                   }}
@@ -167,8 +184,13 @@ export default function PartyDetailPage() {
 
       <div className="flex flex-col items-center gap-1">
         <div className="w-full">
-          <Button type="button" className="w-full" variant="outline" onClick={handleCopyInviteCode}>
-            <Copy className="w-3!"/>
+          <Button
+            type="button"
+            className="w-full"
+            variant="outline"
+            onClick={handleCopyInviteCode}
+          >
+            <Copy className="w-3!" />
             초대 코드: {data?.data.inviteCode}
           </Button>
         </div>
@@ -187,7 +209,9 @@ export default function PartyDetailPage() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isDeleting}>취소</AlertDialogCancel>
+                <AlertDialogCancel disabled={isDeleting}>
+                  취소
+                </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDelete}
                   variant="destructive"

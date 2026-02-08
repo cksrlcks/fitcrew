@@ -20,7 +20,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod/v4";
 import { Spinner } from "./ui/spinner";
-import { useAddPartyMutation } from "@/query/party";
+import { useAddPartyMutation, useEditPartyMutation } from "@/query/party";
+import { PartyDetail } from "@/lib/type";
 
 export const PARTY_NAME_PRESETS = [
   "하루한결",
@@ -91,7 +92,11 @@ const PartyFormSchema = z.object({
 
 export type PartyFormType = z.infer<typeof PartyFormSchema>;
 
-export default function AddPartyModal({ children }: PropsWithChildren) {
+export default function AddPartyModal({
+  children,
+  mode,
+  partyData,
+}: PropsWithChildren<{ mode?: "edit"; partyData?: PartyDetail }>) {
   const [open, setOpen] = useState(false);
   const {
     register,
@@ -101,20 +106,31 @@ export default function AddPartyModal({ children }: PropsWithChildren) {
   } = useForm<PartyFormType>({
     resolver: zodResolver(PartyFormSchema),
     defaultValues: {
-      name: "",
+      name:
+        mode === "edit" && partyData ? partyData.name : getRandomPartyName(),
     },
   });
 
-  const { mutateAsync, isPending } = useAddPartyMutation();
+  const editMutation = useEditPartyMutation(partyData?.id || "");
+  const addMutation = useAddPartyMutation();
+  
+  const { mutateAsync, isPending } =
+    mode === "edit" && partyData ? editMutation : addMutation;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       await mutateAsync(data);
-      toast.success("파티가 생성되었습니다.");
+      toast.success(
+        mode === "edit" ? "파티가 수정되었습니다." : "파티가 생성되었습니다.",
+      );
       setOpen(false);
     } catch (error) {
       console.error("파티 생성 실패:", error);
-      toast.error("파티 생성에 실패했습니다.");
+      toast.error(
+        mode === "edit"
+          ? "파티 수정에 실패했습니다."
+          : "파티 생성에 실패했습니다.",
+      );
     }
   });
 
@@ -124,7 +140,7 @@ export default function AddPartyModal({ children }: PropsWithChildren) {
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
 
-        if (nextOpen) {
+        if (nextOpen && mode !== "edit") {
           reset({
             name: getRandomPartyName(),
           });
@@ -135,9 +151,13 @@ export default function AddPartyModal({ children }: PropsWithChildren) {
       <DialogContent>
         <form className="flex-1 space-y-6" onSubmit={onSubmit}>
           <DialogHeader>
-            <DialogTitle>새 파티 만들기</DialogTitle>
+            <DialogTitle>
+              {mode === "edit" ? "파티 수정" : "새 파티 만들기"}
+            </DialogTitle>
             <DialogDescription>
-              파티 생성 후 초대코드가 자동으로 생성됩니다
+              {mode === "edit"
+                ? "파티 정보를 수정할 수 있습니다."
+                : "파티 생성 후 초대코드가 자동으로 생성됩니다"}
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
@@ -158,7 +178,13 @@ export default function AddPartyModal({ children }: PropsWithChildren) {
               </Button>
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending ? <Spinner /> : "파티 만들기"}
+              {isPending ? (
+                <Spinner />
+              ) : mode === "edit" ? (
+                "수정하기"
+              ) : (
+                "파티 만들기"
+              )}
             </Button>
           </DialogFooter>
         </form>
