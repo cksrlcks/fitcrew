@@ -3,6 +3,8 @@
 import {
   LineChart,
   Line,
+  AreaChart,
+  Area,
   XAxis,
   CartesianGrid,
   LabelList,
@@ -73,7 +75,26 @@ export default function Chart() {
       }}
       className="w-full h-[200px]"
     >
-      <LineChart data={chartData} height={100}>
+      <AreaChart
+        data={chartData}
+        height={100}
+        margin={{ top: 20, left: 0, right: 0, bottom: 0 }}
+      >
+        <defs>
+          <linearGradient id="fillWeight" x1="0" y1="0" x2="0" y2="1">
+            <stop
+              offset="5%"
+              stopColor="var(--primary)"
+              stopOpacity={0.2}
+            />
+            <stop
+              offset="95%"
+              stopColor="var(--primary)"
+              stopOpacity={0}
+            />
+          </linearGradient>
+        </defs>
+
         <CartesianGrid vertical={false} stroke="#333" strokeDasharray="3 6" />
         <XAxis
           dataKey="date"
@@ -84,21 +105,16 @@ export default function Chart() {
           ticks={xTicks}
           interval="preserveStartEnd"
         />
-        <YAxis
-          domain={["dataMin - 2", "dataMax + 2"]}
-          width={32} // ← 핵심
-          axisLine={false}
-          hide
-        />
+        <YAxis domain={["dataMin - 2", "dataMax + 2"]} axisLine={false} hide />
         <ChartTooltip content={<ChartTooltipContent />} />
-        <Line
+
+        <Area
           dataKey="weight"
           type="monotone"
           connectNulls
           stroke="var(--primary)"
-          strokeOpacity={1}
-          strokeWidth={4}
-          fill="var(--primary)"
+          strokeWidth={3}
+          fill="url(#fillWeight)"
           isAnimationActive={false}
           dot={false}
         >
@@ -107,13 +123,10 @@ export default function Chart() {
             offset={12}
             className="fill-foreground"
             fontSize={12}
-            formatter={(data: number) => Number(data).toString()}
             content={({ x, y, value, index }) => {
               if (value == null || index == null) return null;
-
               const lastIndex = chartData.length - 1;
               const shouldRender = index === 0 || index === lastIndex;
-
               if (!shouldRender) return null;
 
               return (
@@ -131,8 +144,8 @@ export default function Chart() {
               );
             }}
           />
-        </Line>
-      </LineChart>
+        </Area>
+      </AreaChart>
     </ChartContainer>
   );
 }
