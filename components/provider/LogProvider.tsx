@@ -80,6 +80,28 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      window.history.pushState({ drawerOpen: true }, "");
+    }
+
+    const handlePopState = () => {
+      if (isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+
+      if (isOpen && window.history.state?.drawerOpen) {
+        window.history.back();
+      }
+    };
+  }, [isOpen]);
+
   return (
     <LogContext.Provider
       value={{
