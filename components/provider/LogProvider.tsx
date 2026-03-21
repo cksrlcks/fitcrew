@@ -9,7 +9,7 @@ import {
 } from "react";
 import LogDrawer from "../LogDrawer";
 import { useQuery } from "@tanstack/react-query";
-import { DailyLog } from "@/lib/type";
+import { DailyLog, InjectionLog } from "@/lib/type";
 import { format, startOfWeek } from "date-fns";
 import { useAuth } from "@/hook/useAuth";
 
@@ -24,7 +24,7 @@ type LogContextType = {
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
   data?: { [key: string]: DailyLog };
-  lastInjectionDate?: string;
+  lastInjectionLog?: InjectionLog;
   isLoading: boolean;
   currentData?: DailyLog;
   displayDate: Date;
@@ -47,7 +47,7 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
 
   const { data, isPending } = useQuery<{
     data: { [key: string]: DailyLog };
-    lastInjectionDate?: string;
+    lastInjectionLog?: InjectionLog;
   }>({
     queryKey: ["logs"],
     queryFn: async () => {
@@ -114,7 +114,7 @@ export const LogProvider = ({ children }: PropsWithChildren) => {
         setDate,
         currentData,
         data: data?.data,
-        lastInjectionDate: data?.lastInjectionDate,
+        lastInjectionLog: data?.lastInjectionLog,
         isLoading: isPending,
         displayDate,
         setDisplayDate,

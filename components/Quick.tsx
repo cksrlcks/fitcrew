@@ -5,6 +5,7 @@ import { useLogContext } from "./provider/LogProvider";
 import { Skeleton } from "./ui/skeleton";
 import Calendar from "./Calendar";
 import QuickButton from "./QuickButton";
+import { format } from "date-fns";
 
 export default function Quick() {
   const {
@@ -12,7 +13,7 @@ export default function Quick() {
     isLoading,
     date,
     currentData,
-    lastInjectionDate,
+    lastInjectionLog,
     setDate,
     setDisplayDate,
   } = useLogContext();
@@ -76,7 +77,11 @@ export default function Quick() {
               )}
             </div>
             <div className="text-[13px] font-medium text-gray-500 tracking-tight">
-              최근 : {lastInjectionDate || "-"}
+              최근 :{" "}
+              {lastInjectionLog?.logDate
+                ? format(lastInjectionLog?.logDate, "yy.MM.dd")
+                : ""} {" "}
+              {lastInjectionLog?.note ? `(${lastInjectionLog.note})` : ""}
             </div>
           </div>
         </QuickButton>

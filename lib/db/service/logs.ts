@@ -37,14 +37,14 @@ export const getInjectionLogs = async ({
     .orderBy(desc(injectionLogs.logDate));
 };
 
-export const getLastInjectionDate = async ({ userId }: { userId: string }) => {
+export const getLastInjectionLog = async ({ userId }: { userId: string }) => {
   const result = await db
     .select()
     .from(injectionLogs)
     .where(eq(injectionLogs.userId, userId))
     .orderBy(desc(injectionLogs.logDate))
     .limit(1);
-  return result[0]?.logDate || null;
+  return result[0];
 };
 
 export const upsertBodyLog = async (data: BodyLogFormType) => {

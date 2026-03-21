@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import {
   getBodyLogs,
   getInjectionLogs,
-  getLastInjectionDate,
+  getLastInjectionLog,
   upsertBodyLog,
   upsertInjectionLog,
 } from "@/lib/db/service/logs";
@@ -19,14 +19,14 @@ export async function GET() {
   }
 
 
-  const [bodyLogs, injectionLogs, lastInjectionDate] = await Promise.all([
+  const [bodyLogs, injectionLogs, lastInjectionLog] = await Promise.all([
     getBodyLogs({
       userId: session.user.id,
     }),
     getInjectionLogs({
       userId: session.user.id,
     }),
-    getLastInjectionDate({
+    getLastInjectionLog({
       userId: session.user.id,
     }),
   ]);
@@ -48,7 +48,7 @@ export async function GET() {
 
   return NextResponse.json({
     data: Object.fromEntries(dataMap),
-    lastInjectionDate,
+    lastInjectionLog,
   });
 }
 
